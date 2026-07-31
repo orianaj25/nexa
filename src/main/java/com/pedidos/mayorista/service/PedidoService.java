@@ -4,11 +4,12 @@ import com.pedidos.mayorista.dto.PedidoRequest;
 import com.pedidos.mayorista.model.DetallePedido;
 import com.pedidos.mayorista.model.Pedido;
 import com.pedidos.mayorista.model.Producto;
+import com.pedidos.mayorista.model.enums.EstadoPedido;
 import com.pedidos.mayorista.repository.PedidoRepository;
 import com.pedidos.mayorista.repository.ProductoRepository;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -39,7 +40,9 @@ public class PedidoService {
 
         pedido.setMetodoPago(request.metodoPago);
         pedido.setDniCliente(request.dniCliente);
-        pedido.setEstado("ACTIVO");
+
+        // Estado inicial del pedido
+        pedido.setEstado(EstadoPedido.ENVIADO_A_FACTURACION);
 
         List<DetallePedido> detalles = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
@@ -68,10 +71,18 @@ public class PedidoService {
         pedido.setTotal(total);
         pedido.setDetalles(detalles);
 
-        // Guarda el pedido
+        // Guarda el pedido para obtener el ID
         Pedido pedidoGuardado = pedidoRepo.save(pedido);
 
-        // Si existe una caja abierta registra automáticamente la venta
+        // Genera el número de pedido
+        pedidoGuardado.setNumeroPedido(
+                String.format("PED-%06d", pedidoGuardado.getId())
+        );
+
+        // Guarda nuevamente con el número generado
+        pedidoGuardado = pedidoRepo.save(pedidoGuardado);
+
+        // Registra la venta en caja (si existe una caja abierta)
         cajaService.registrarVenta(pedidoGuardado);
 
         return pedidoGuardado;
@@ -85,9 +96,10 @@ public class PedidoService {
     public void anularPedido(Long id) {
 
         Pedido pedido = pedidoRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+                .orElseThrow(() ->
+                        new RuntimeException("Pedido no encontrado"));
 
-        pedido.setEstado("ANULADO");
+        pedido.setEstado(EstadoPedido.ANULADO);
 
         pedidoRepo.save(pedido);
     }
@@ -96,12 +108,12 @@ public class PedidoService {
     public void restaurarPedido(Long id) {
 
         Pedido pedido = pedidoRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+                .orElseThrow(() ->
+                        new RuntimeException("Pedido no encontrado"));
 
-        pedido.setEstado("ACTIVO");
+        pedido.setEstado(EstadoPedido.ENVIADO_A_FACTURACION);
 
         pedidoRepo.save(pedido);
     }
-
 
 }

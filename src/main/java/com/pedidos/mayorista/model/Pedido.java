@@ -2,11 +2,13 @@ package com.pedidos.mayorista.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pedidos.mayorista.model.enums.EstadoPedido;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,13 +22,27 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "America/Argentina/Buenos_Aires")
+    @Column(name = "numero_pedido", unique = true)
+    private String numeroPedido;
+
+    @JsonFormat(
+            pattern = "yyyy-MM-dd HH:mm:ss",
+            timezone = "America/Argentina/Buenos_Aires"
+    )
     private LocalDateTime fecha;
 
+    @Column(nullable = false)
     private BigDecimal total;
 
-    @Column(name = "metodo_pago")
+    @Column(name = "metodo_pago", nullable = false)
     private String metodoPago;
+
+    @Column(name = "dni_cliente")
+    private String dniCliente;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EstadoPedido estado;
 
     @OneToMany(
             mappedBy = "pedido",
@@ -36,9 +52,4 @@ public class Pedido {
     @JsonIgnore
     private List<DetallePedido> detalles;
 
-    @Column(name = "dni_cliente")
-    private String dniCliente;
-
-    @Column(nullable = false)
-    private String estado;
 }

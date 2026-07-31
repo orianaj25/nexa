@@ -5,7 +5,9 @@ import java.time.LocalDateTime;
 
 public class PedidoHistorialDTO {
 
-    public Long pedidoId;
+    public Long pedidoId;          // interno
+
+    public String numeroPedido;    // visible
 
     public LocalDateTime fecha;
 
@@ -19,6 +21,7 @@ public class PedidoHistorialDTO {
 
     public PedidoHistorialDTO(
             Long pedidoId,
+            String numeroPedido,
             LocalDateTime fecha,
             Long cantidadProductos,
             BigDecimal total,
@@ -26,10 +29,12 @@ public class PedidoHistorialDTO {
             String estado) {
 
         this.pedidoId = pedidoId;
+        this.numeroPedido = numeroPedido;
         this.fecha = fecha;
         this.cantidadProductos = cantidadProductos;
         this.total = total;
         this.metodoPago = metodoPago;
         this.estado = estado;
     }
+
 }

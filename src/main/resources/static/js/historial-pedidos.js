@@ -2,7 +2,7 @@ const API_PEDIDOS = "/api/pedidos";
 
 let historialGlobal = [];
 let detalleGlobal = [];
-let estadoActual = "ACTIVO";
+let estadoActual = "ENVIADO_A_FACTURACION";
 
 /* =========================
    FORMATEAR FECHA
@@ -20,17 +20,59 @@ function formatearFecha(fechaIso) {
         hour: "2-digit",
         minute: "2-digit"
     });
+
+}
+
+/* =========================
+   ESTADOS
+========================= */
+
+function obtenerEstado(estado){
+
+    switch(estado){
+
+        case "ENVIADO_A_FACTURACION":
+            return {
+                texto:"Enviado",
+                badge:"bg-primary"
+            };
+
+        case "PENDIENTE_FACTURACION":
+            return {
+                texto:"Pendiente",
+                badge:"bg-warning text-dark"
+            };
+
+        case "FACTURADO":
+            return {
+                texto:"Facturado",
+                badge:"bg-success"
+            };
+
+        case "ANULADO":
+            return {
+                texto:"Anulado",
+                badge:"bg-danger"
+            };
+
+        default:
+            return {
+                texto:estado,
+                badge:"bg-secondary"
+            };
+
+    }
+
 }
 
 /* =========================
    CAMBIAR ESTADO
 ========================= */
 
-function cambiarEstado() {
+function cambiarEstado(){
 
-    estadoActual = document
-        .getElementById("filtroEstado")
-        .value;
+    estadoActual =
+        document.getElementById("filtroEstado").value;
 
     cargarDetalle();
 
@@ -40,65 +82,77 @@ function cambiarEstado() {
    CARGAR HISTORIAL
 ========================= */
 
-function cargarDetalle() {
+function cargarDetalle(){
 
-    let endpoint = "/historial";
+    let endpoint="/historial";
 
-    if (estadoActual === "ANULADO") {
+    if(estadoActual==="ANULADO"){
 
-        endpoint = "/anulados";
+        endpoint="/anulados";
 
-    } else if (estadoActual === "TODOS") {
+    }else if(estadoActual==="TODOS"){
 
-        endpoint = "/todos";
+        endpoint="/todos";
 
     }
 
     Promise.all([
-        axios.get(API_PEDIDOS + endpoint),
-        axios.get(API_PEDIDOS + "/detalle")
-    ])
-    .then(([historial, detalle]) => {
 
-        historialGlobal = historial.data;
-        detalleGlobal = detalle.data;
+        axios.get(API_PEDIDOS+endpoint),
+
+        axios.get(API_PEDIDOS+"/detalle")
+
+    ])
+
+    .then(([historial,detalle])=>{
+
+        historialGlobal=historial.data;
+
+        detalleGlobal=detalle.data;
 
         renderDetalle(historialGlobal);
 
     })
-    .catch(error => {
 
-        console.error("Error cargando pedidos:", error);
+    .catch(error=>{
+
+        console.error(error);
 
     });
 
 }
 
 /* =========================
-   RENDER HISTORIAL
+   RENDER
 ========================= */
 
-function renderDetalle(lista) {
+function renderDetalle(lista){
 
-    const tabla = document.getElementById("tablaDetalle");
+    const tabla =
+        document.getElementById("tablaDetalle");
 
-    if (!tabla) return;
+    tabla.innerHTML="";
 
-    tabla.innerHTML = "";
+    lista.forEach(pedido=>{
 
-    lista.forEach(pedido => {
+        const estado =
+            obtenerEstado(pedido.estado);
 
-        let botones = `
+        let botones=`
+
             <button
                 class="btn btn-sm btn-primary"
                 onclick="verPedido(${pedido.pedidoId})">
+
                 Ver
+
             </button>
+
         `;
 
-        if (pedido.estado === "ACTIVO") {
+        if(pedido.estado!=="ANULADO"){
 
-            botones += `
+            botones+=`
 
                 <button
                     class="btn btn-sm btn-success"
@@ -118,9 +172,9 @@ function renderDetalle(lista) {
 
             `;
 
-        } else {
+        }else{
 
-            botones += `
+            botones+=`
 
                 <button
                     class="btn btn-sm btn-warning"
@@ -134,21 +188,35 @@ function renderDetalle(lista) {
 
         }
 
-        tabla.innerHTML += `
+        tabla.innerHTML+=`
 
             <tr>
 
-                <td>${pedido.pedidoId}</td>
+                <td>${pedido.numeroPedido}</td>
 
                 <td>${formatearFecha(pedido.fecha)}</td>
 
-                <td>${pedido.cantidadProductos} productos</td>
+                <td>${pedido.cantidadProductos}</td>
 
                 <td>$${pedido.total}</td>
 
                 <td>${pedido.metodoPago}</td>
 
-                <td>${botones}</td>
+                <td>
+
+                    <span class="badge ${estado.badge}">
+
+                        ${estado.texto}
+
+                    </span>
+
+                </td>
+
+                <td>
+
+                    ${botones}
+
+                </td>
 
             </tr>
 
@@ -162,16 +230,17 @@ function renderDetalle(lista) {
    FILTRAR
 ========================= */
 
-function filtrarDetalle() {
+function filtrarDetalle(){
 
-    const texto = document
-        .getElementById("filtro")
-        .value
-        .toLowerCase();
+    const texto =
+        document
+            .getElementById("filtro")
+            .value
+            .toLowerCase();
 
-    const filtrados = historialGlobal.filter(p =>
+    const filtrados = historialGlobal.filter(p=>
 
-        p.pedidoId.toString().includes(texto)
+        p.numeroPedido.toLowerCase().includes(texto)
 
         ||
 
@@ -193,13 +262,17 @@ function filtrarDetalle() {
    VER PEDIDO
 ========================= */
 
-function verPedido(id) {
+function verPedido(id){
 
-    const pedido = detalleGlobal.filter(d => d.pedidoId === id);
+    const pedido =
+        detalleGlobal.filter(
+            d=>d.pedidoId===id
+        );
 
-    if (pedido.length === 0) return;
+    if(pedido.length===0) return;
 
-    document.getElementById("modalId").innerText = id;
+    document.getElementById("modalId").innerText =
+        pedido[0].numeroPedido;
 
     document.getElementById("modalFecha").innerText =
         formatearFecha(pedido[0].fecha);
@@ -210,13 +283,22 @@ function verPedido(id) {
     document.getElementById("modalPago").innerText =
         pedido[0].metodoPago;
 
-    const tabla = document.getElementById("modalItems");
+    const historial =
+        historialGlobal.find(
+            p=>p.pedidoId===id
+        );
 
-    tabla.innerHTML = "";
+    document.getElementById("modalEstado").innerText =
+        obtenerEstado(historial.estado).texto;
 
-    pedido.forEach(item => {
+    const tabla =
+        document.getElementById("modalItems");
 
-        tabla.innerHTML += `
+    tabla.innerHTML="";
+
+    pedido.forEach(item=>{
+
+        tabla.innerHTML+=`
 
             <tr>
 
@@ -224,7 +306,7 @@ function verPedido(id) {
 
                 <td>${item.cantidad}</td>
 
-                <td>$${(item.subtotal / item.cantidad).toFixed(2)}</td>
+                <td>$${(item.subtotal/item.cantidad).toFixed(2)}</td>
 
                 <td>$${item.subtotal}</td>
 
@@ -241,34 +323,32 @@ function verPedido(id) {
 }
 
 /* =========================
-   DESCARGAR TICKET
+   TICKET
 ========================= */
 
-function descargarTicket(id) {
+function descargarTicket(id){
 
-    window.open(`/tickets/${id}`, "_blank");
+    window.open(`/tickets/${id}`,"_blank");
 
 }
 
-function anularPedido(id) {
+/* =========================
+   ANULAR
+========================= */
 
-    if (!confirm("¿Desea anular este pedido?")) {
+function anularPedido(id){
 
-        return;
+    if(!confirm("¿Desea anular este pedido?")) return;
 
-    }
+    axios.put(API_PEDIDOS+"/"+id+"/anular")
 
-    axios.put(API_PEDIDOS + "/" + id + "/anular")
-
-        .then(() => {
+        .then(()=>{
 
             cargarDetalle();
 
         })
 
-        .catch(error => {
-
-            console.error(error);
+        .catch(()=>{
 
             alert("No se pudo anular el pedido.");
 
@@ -276,25 +356,23 @@ function anularPedido(id) {
 
 }
 
-function restaurarPedido(id) {
+/* =========================
+   RESTAURAR
+========================= */
 
-    if (!confirm("¿Desea restaurar este pedido?")) {
+function restaurarPedido(id){
 
-        return;
+    if(!confirm("¿Desea restaurar este pedido?")) return;
 
-    }
+    axios.put(API_PEDIDOS+"/"+id+"/restaurar")
 
-    axios.put(API_PEDIDOS + "/" + id + "/restaurar")
-
-        .then(() => {
+        .then(()=>{
 
             cargarDetalle();
 
         })
 
-        .catch(error => {
-
-            console.error(error);
+        .catch(()=>{
 
             alert("No se pudo restaurar el pedido.");
 
@@ -306,7 +384,7 @@ function restaurarPedido(id) {
    INICIO
 ========================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded",()=>{
 
     cargarDetalle();
 
