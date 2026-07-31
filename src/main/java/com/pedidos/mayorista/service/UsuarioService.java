@@ -45,10 +45,34 @@ public class UsuarioService {
 
     public Usuario crear(Usuario usuario) {
 
+        if (usuario.getUsuario() == null ||
+                usuario.getUsuario().isBlank()) {
+
+            throw new RuntimeException(
+                    "El nombre de usuario es obligatorio."
+            );
+        }
+
+        if (usuario.getPassword() == null ||
+                usuario.getPassword().isBlank()) {
+
+            throw new RuntimeException(
+                    "La contraseña es obligatoria."
+            );
+        }
+
+        if (usuario.getRol() == null) {
+
+            throw new RuntimeException(
+                    "El rol es obligatorio."
+            );
+        }
+
         if (usuarioRepository.existsByUsuario(usuario.getUsuario())) {
 
-            throw new RuntimeException("El nombre de usuario ya existe.");
-
+            throw new RuntimeException(
+                    "El nombre de usuario ya existe."
+            );
         }
 
         usuario.setPassword(
@@ -56,7 +80,6 @@ public class UsuarioService {
         );
 
         return usuarioRepository.save(usuario);
-
     }
 
     // ==========================
