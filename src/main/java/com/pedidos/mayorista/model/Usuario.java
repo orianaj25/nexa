@@ -1,6 +1,7 @@
 package com.pedidos.mayorista.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pedidos.mayorista.model.enums.Rol;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,6 +31,7 @@ public class Usuario {
     @Column(nullable = false, unique = true, length = 50)
     private String usuario;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
 
