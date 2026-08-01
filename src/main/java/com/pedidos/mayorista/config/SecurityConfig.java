@@ -58,7 +58,6 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // Login y recursos públicos
                         .requestMatchers(
                                 "/login",
                                 "/css/**",
@@ -66,21 +65,15 @@ public class SecurityConfig {
                                 "/images/**"
                         ).permitAll()
 
+                        // Cualquier usuario logueado puede ver sus propios datos
+                        .requestMatchers(
+                                "/api/usuarios/me"
+                        ).authenticated()
 
-                        // ==========================
-                        // USUARIOS
-                        // SOLO ADMINISTRADOR
-                        // ==========================
-
+                        // Solo el administrador administra usuarios
                         .requestMatchers(
                                 "/api/usuarios/**"
                         ).hasRole("ADMINISTRADOR")
-
-
-                        // ==========================
-                        // TODO LO DEMÁS
-                        // REQUIERE LOGIN
-                        // ==========================
 
                         .anyRequest().authenticated()
                 )
