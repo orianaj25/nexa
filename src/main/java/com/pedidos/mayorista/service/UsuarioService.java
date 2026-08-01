@@ -122,4 +122,16 @@ public class UsuarioService {
 
     }
 
+    // ==========================
+// USUARIO LOGUEADO
+// ==========================
+
+    public Usuario buscarPorUsuario(String username) {
+
+        return usuarioRepository.findByUsuario(username)
+                .orElseThrow(() ->
+                        new RuntimeException("Usuario no encontrado"));
+
+    }
+
 }

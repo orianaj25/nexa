@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -106,6 +107,24 @@ public class UsuarioController {
                     .body(e.getMessage());
 
         }
+
+    }
+
+    // ==========================
+// USUARIO LOGUEADO
+// ==========================
+
+    @GetMapping("/me")
+    public ResponseEntity<Usuario> usuarioLogueado(
+            Principal principal) {
+
+        Usuario usuario = usuarioService.buscarPorUsuario(
+                principal.getName()
+        );
+
+        usuario.setPassword(null);
+
+        return ResponseEntity.ok(usuario);
 
     }
 
