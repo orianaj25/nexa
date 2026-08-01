@@ -49,7 +49,7 @@ public class SecurityConfig {
                 // USUARIO DESDE BASE DE DATOS
                 // ==========================
 
-                .userDetailsService(usuarioDetailsService)
+                //.userDetailsService(usuarioDetailsService)
 
 
                 // ==========================
@@ -106,10 +106,7 @@ public class SecurityConfig {
                 // ==========================
 
                 .logout(logout -> logout
-
-                        .logoutSuccessUrl("/login")
-
-                        .permitAll()
+                        .logoutSuccessUrl("/login?logout")
                 );
 
 
