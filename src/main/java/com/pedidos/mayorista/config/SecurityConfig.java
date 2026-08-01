@@ -49,7 +49,7 @@ public class SecurityConfig {
                 // USUARIO DESDE BASE DE DATOS
                 // ==========================
 
-                //.userDetailsService(usuarioDetailsService)
+                .userDetailsService(usuarioDetailsService)
 
 
                 // ==========================
