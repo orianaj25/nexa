@@ -399,3 +399,325 @@ h5{
     }
 
 }
+
+/* =========================================================
+   DASHBOARD NUEVA VERSION
+========================================================= */
+
+.topbar-role{
+
+    display:inline-block;
+
+    margin-top:5px;
+
+    padding:6px 12px;
+
+    border-radius:30px;
+
+    background:#eef4ff;
+
+    color:#2563eb;
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+
+/* =========================================================
+   PANEL INFERIOR
+========================================================= */
+
+.dashboard-bottom{
+
+    display:grid;
+
+    grid-template-columns:1fr 1.2fr 1fr;
+
+    gap:25px;
+
+    margin-top:30px;
+
+}
+
+
+.dashboard-box{
+
+    background:#fff;
+
+    border-radius:18px;
+
+    padding:20px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+}
+
+
+.dashboard-box h3{
+
+    margin-bottom:18px;
+
+    font-size:18px;
+
+    color:#1d3557;
+
+}
+
+
+/* =========================================================
+   TABLAS DASHBOARD
+========================================================= */
+
+.dashboard-table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+
+.dashboard-table thead{
+
+    background:#f8fafc;
+
+}
+
+
+.dashboard-table th{
+
+    padding:12px;
+
+    text-align:left;
+
+    font-size:14px;
+
+    color:#64748b;
+
+}
+
+
+.dashboard-table td{
+
+    padding:12px;
+
+    border-top:1px solid #edf2f7;
+
+    font-size:14px;
+
+}
+
+
+.dashboard-table tbody tr:hover{
+
+    background:#f8fbff;
+
+}
+
+
+/* =========================================================
+   RESUMEN POR ESTADO
+========================================================= */
+
+.estado-item{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:15px;
+
+}
+
+
+.estado-label{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    font-weight:500;
+
+}
+
+
+.estado-badge{
+
+    padding:6px 12px;
+
+    border-radius:30px;
+
+    font-weight:600;
+
+    color:white;
+
+    min-width:40px;
+
+    text-align:center;
+
+}
+
+
+/* colores */
+
+.estado-pendiente{
+
+    background:#f59e0b;
+
+}
+
+.estado-facturacion{
+
+    background:#3b82f6;
+
+}
+
+.estado-facturado{
+
+    background:#22c55e;
+
+}
+
+.estado-anulado{
+
+    background:#ef4444;
+
+}
+
+
+/* =========================================================
+   BADGES TABLAS
+========================================================= */
+
+.badge-estado{
+
+    padding:6px 10px;
+
+    border-radius:30px;
+
+    color:white;
+
+    font-size:12px;
+
+    font-weight:600;
+
+    display:inline-block;
+
+}
+
+.badge-pendiente{
+
+    background:#f59e0b;
+
+}
+
+.badge-facturacion{
+
+    background:#3b82f6;
+
+}
+
+.badge-facturado{
+
+    background:#22c55e;
+
+}
+
+.badge-anulado{
+
+    background:#ef4444;
+
+}
+
+
+/* =========================================================
+   DASHBOARD VENDEDOR
+========================================================= */
+
+#dashboardVendedor .chart-card{
+
+    min-height:420px;
+
+}
+
+#dashboardVendedor .dashboard-table td{
+
+    vertical-align:middle;
+
+}
+
+#dashboardVendedor .dashboard-table tr:hover{
+
+    background:#f7fafc;
+
+}
+
+
+/* =========================================================
+   TARJETAS
+========================================================= */
+
+.cards-container{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:20px;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1200px){
+
+    .dashboard-bottom{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+
+@media(max-width:900px){
+
+    .cards-container{
+
+        grid-template-columns:repeat(2,1fr);
+
+    }
+
+}
+
+
+@media(max-width:768px){
+
+    .cards-container{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .dashboard-middle{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .dashboard-bottom{
+
+        grid-template-columns:1fr;
+
+    }
+
+}

@@ -141,9 +141,9 @@
 
         </div>
 
-        <!-- ================================ -->
-        <!-- FOOTER SIDEBAR                   -->
-        <!-- ================================ -->
+        <!-- ========================================= -->
+        <!-- FOOTER SIDEBAR                            -->
+        <!-- ========================================= -->
 
         <div class="sidebar-footer">
 
@@ -158,6 +158,7 @@
         </div>
 
     </aside>
+
     <!-- ========================================= -->
     <!-- MAIN                                      -->
     <!-- ========================================= -->
@@ -173,38 +174,51 @@
             <div class="topbar-left">
 
                 <h3 id="saludoUsuario">
+
                     ¡Bienvenido!
+
                 </h3>
 
-                <span id="rolUsuario" class="topbar-role"></span>
+                <div class="topbar-user-info">
+
+                    <span id="rolUsuario" class="topbar-role"></span>
+
+                </div>
 
             </div>
 
             <div class="topbar-right">
 
                 <span id="fechaActual">
+
                     <i class="bi bi-calendar3"></i>
+
                 </span>
 
-                <i class="bi bi-bell-fill"></i>
+                <button class="notification-btn">
+
+                    <i class="bi bi-bell-fill"></i>
+
+                </button>
 
             </div>
 
         </header>
 
         <!-- ========================================= -->
-        <!-- CONTENIDO                                -->
+        <!-- CONTENIDO                                 -->
         <!-- ========================================= -->
 
         <main class="content">
-
             <!-- ========================================= -->
             <!-- DASHBOARD ADMINISTRADOR                  -->
             <!-- ========================================= -->
 
             <div id="dashboardAdministrador">
 
-                <!-- TARJETAS -->
+                <!-- ========================= -->
+                <!-- TARJETAS SUPERIORES       -->
+                <!-- ========================= -->
 
                 <section class="cards-container">
 
@@ -220,8 +234,7 @@
                                 Ventas del día
                             </div>
 
-                            <div class="card-value"
-                                 id="ventasDia"></div>
+                            <div class="card-value" id="ventasDia"></div>
 
                         </div>
 
@@ -230,7 +243,7 @@
                     <div class="card">
 
                         <div class="card-icon blue">
-                            <i class="bi bi-clipboard-check"></i>
+                            <i class="bi bi-receipt-cutoff"></i>
                         </div>
 
                         <div class="card-info">
@@ -239,8 +252,7 @@
                                 Pedidos del día
                             </div>
 
-                            <div class="card-value"
-                                 id="pedidosDia"></div>
+                            <div class="card-value" id="pedidosDia"></div>
 
                         </div>
 
@@ -258,8 +270,7 @@
                                 Clientes atendidos
                             </div>
 
-                            <div class="card-value"
-                                 id="clientesDia"></div>
+                            <div class="card-value" id="clientesDia"></div>
 
                         </div>
 
@@ -277,8 +288,7 @@
                                 Productos vendidos
                             </div>
 
-                            <div class="card-value"
-                                 id="productosDia"></div>
+                            <div class="card-value" id="productosDia"></div>
 
                         </div>
 
@@ -286,7 +296,9 @@
 
                 </section>
 
-                <!-- GRAFICO + ACCESOS -->
+                <!-- ========================= -->
+                <!-- GRAFICO + ACCESOS         -->
+                <!-- ========================= -->
 
                 <section class="dashboard-middle">
 
@@ -295,7 +307,9 @@
                         <div class="card-header">
 
                             <h3>
+
                                 Ventas últimos 7 días
+
                             </h3>
 
                         </div>
@@ -312,8 +326,7 @@
 
                         </h3>
 
-                        <a href="pedidos.html"
-                           class="action-btn primary">
+                        <a href="pedidos.html" class="action-btn primary">
 
                             <i class="bi bi-plus-circle"></i>
 
@@ -321,8 +334,7 @@
 
                         </a>
 
-                        <a href="historial-pedidos.html"
-                           class="action-btn">
+                        <a href="historial-pedidos.html" class="action-btn">
 
                             <i class="bi bi-clock-history"></i>
 
@@ -330,8 +342,7 @@
 
                         </a>
 
-                        <a href="productos.html"
-                           class="action-btn">
+                        <a href="productos.html" class="action-btn">
 
                             <i class="bi bi-box-seam"></i>
 
@@ -343,7 +354,9 @@
 
                 </section>
 
-                <!-- PANEL INFERIOR -->
+                <!-- ========================= -->
+                <!-- ESTADOS PEDIDOS           -->
+                <!-- ========================= -->
 
                 <section class="dashboard-bottom">
 
@@ -351,11 +364,11 @@
 
                         <h3>
 
-                            Pedidos por Estado
+                            Estado de los pedidos
 
                         </h3>
 
-                        <div id="resumenEstados">
+                        <div id="resumenEstados" class="estado-grid">
 
                             <!-- JS -->
 
@@ -363,11 +376,19 @@
 
                     </div>
 
+                </section>
+
+                <!-- ========================= -->
+                <!-- PRODUCTOS MÁS VENDIDOS    -->
+                <!-- ========================= -->
+
+                <section class="dashboard-bottom">
+
                     <div class="dashboard-box">
 
                         <h3>
 
-                            Últimos Pedidos
+                            Productos más vendidos
 
                         </h3>
 
@@ -377,39 +398,7 @@
 
                             <tr>
 
-                                <th>N°</th>
-
-                                <th>Cliente</th>
-
-                                <th>Estado</th>
-
-                                <th>Total</th>
-
-                            </tr>
-
-                            </thead>
-
-                            <tbody id="tablaUltimosPedidos">
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                    <div class="dashboard-box">
-
-                        <h3>
-
-                            Productos Más Vendidos
-
-                        </h3>
-
-                        <table class="dashboard-table">
-
-                            <thead>
-
-                            <tr>
+                                <th>#</th>
 
                                 <th>Producto</th>
 
@@ -429,19 +418,58 @@
 
                 </section>
 
+                <!-- ========================= -->
+                <!-- ULTIMOS PEDIDOS           -->
+                <!-- ========================= -->
+
+                <section class="dashboard-bottom">
+
+                    <div class="dashboard-box">
+
+                        <h3>
+
+                            Últimos pedidos registrados
+
+                        </h3>
+
+                        <table class="dashboard-table">
+
+                            <thead>
+
+                            <tr>
+
+                                <th>Número</th>
+
+                                <th>DNI Cliente</th>
+
+                                <th>Estado</th>
+
+                                <th>Total</th>
+
+                            </tr>
+
+                            </thead>
+
+                            <tbody id="tablaUltimosPedidos">
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
             </div>
 
             <!-- ========================================= -->
-            <!-- A PARTIR DE ACA COMIENZA LA PARTE 3       -->
             <!-- DASHBOARD VENDEDOR                        -->
             <!-- ========================================= -->
-            <!-- ========================================= -->
-            <!-- DASHBOARD VENDEDOR                        -->
-            <!-- ========================================= -->
-
             <div id="dashboardVendedor" style="display:none;">
 
-                <!-- TARJETAS -->
+                <!-- ========================= -->
+                <!-- TARJETAS                  -->
+                <!-- ========================= -->
 
                 <section class="cards-container">
 
@@ -458,7 +486,8 @@
                             </div>
 
                             <div class="card-value"
-                                 id="pendientesDia"></div>
+                                 id="pendientesDia">
+                            </div>
 
                         </div>
 
@@ -467,17 +496,18 @@
                     <div class="card">
 
                         <div class="card-icon green">
-                            <i class="bi bi-credit-card"></i>
+                            <i class="bi bi-receipt"></i>
                         </div>
 
                         <div class="card-info">
 
                             <div class="card-title">
-                                Pagados
+                                Facturación
                             </div>
 
                             <div class="card-value"
-                                 id="pagadosDia"></div>
+                                 id="facturacionDia">
+                            </div>
 
                         </div>
 
@@ -486,17 +516,18 @@
                     <div class="card">
 
                         <div class="card-icon purple">
-                            <i class="bi bi-check-circle"></i>
+                            <i class="bi bi-check-circle-fill"></i>
                         </div>
 
                         <div class="card-info">
 
                             <div class="card-title">
-                                Entregados
+                                Facturados
                             </div>
 
                             <div class="card-value"
-                                 id="entregadosDia"></div>
+                                 id="facturadosDia">
+                            </div>
 
                         </div>
 
@@ -505,7 +536,7 @@
                     <div class="card">
 
                         <div class="card-icon orange">
-                            <i class="bi bi-x-circle"></i>
+                            <i class="bi bi-x-circle-fill"></i>
                         </div>
 
                         <div class="card-info">
@@ -515,7 +546,8 @@
                             </div>
 
                             <div class="card-value"
-                                 id="anuladosDia"></div>
+                                 id="anuladosDia">
+                            </div>
 
                         </div>
 
@@ -523,7 +555,9 @@
 
                 </section>
 
-                <!-- TABLA + ACCESOS -->
+                <!-- ========================= -->
+                <!-- PANEL CENTRAL            -->
+                <!-- ========================= -->
 
                 <section class="dashboard-middle">
 
@@ -533,7 +567,7 @@
 
                             <h3>
 
-                                Últimos Pedidos
+                                Últimos pedidos
 
                             </h3>
 
@@ -546,12 +580,9 @@
                             <tr>
 
                                 <th>N°</th>
-
                                 <th>Cliente</th>
-
                                 <th>Estado</th>
-
-                                <th>Hora</th>
+                                <th>Total</th>
 
                             </tr>
 
@@ -599,6 +630,31 @@
                             Productos
 
                         </a>
+
+                    </div>
+
+                </section>
+
+                <!-- ========================= -->
+                <!-- RESUMEN DE ESTADOS       -->
+                <!-- ========================= -->
+
+                <section class="dashboard-bottom">
+
+                    <div class="dashboard-box">
+
+                        <h3>
+
+                            Estado de los pedidos de hoy
+
+                        </h3>
+
+                        <div id="resumenEstadosVendedor"
+                             class="estado-grid">
+
+                            <!-- Se completa desde dashboard.js -->
+
+                        </div>
 
                     </div>
 
