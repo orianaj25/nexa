@@ -7,9 +7,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
-/* =========================
+/* ==========================================
    USUARIO LOGUEADO
-========================= */
+========================================== */
 
 async function cargarUsuario() {
 
@@ -23,18 +23,19 @@ async function cargarUsuario() {
 
         const usuario = await response.json();
 
-        // Bienvenida
-        document.querySelector(".topbar-left h3").innerText =
+        document.getElementById("saludoUsuario").innerText =
             `¡Bienvenido, ${usuario.nombre}!`;
 
-        // Según el rol cargamos un dashboard distinto
+        document.getElementById("rolUsuario").innerText =
+            usuario.rol;
+
         if (usuario.rol === "ADMINISTRADOR") {
 
-            cargarDashboardAdministrador();
+            mostrarDashboardAdministrador();
 
         } else {
 
-            configurarDashboardVendedor();
+            mostrarDashboardVendedor();
 
         }
 
@@ -47,13 +48,18 @@ async function cargarUsuario() {
 }
 
 
-/* =========================
-   DASHBOARD ADMINISTRADOR
-========================= */
+/* ==========================================
+   ADMINISTRADOR
+========================================== */
 
-async function cargarDashboardAdministrador() {
+async function mostrarDashboardAdministrador() {
 
-    mostrarOpcionesAdministrador();
+    document.getElementById("dashboardAdministrador").style.display = "block";
+    document.getElementById("dashboardVendedor").style.display = "none";
+
+    document.getElementById("menuArqueo").style.display = "";
+    document.getElementById("menuHistorialCajas").style.display = "";
+    document.getElementById("menuUsuarios").style.display = "";
 
     await cargarDashboard();
 
@@ -62,80 +68,27 @@ async function cargarDashboardAdministrador() {
 }
 
 
-/* =========================
-   DASHBOARD VENDEDOR
-========================= */
+/* ==========================================
+   VENDEDOR
+========================================== */
 
-function configurarDashboardVendedor() {
+async function mostrarDashboardVendedor() {
 
-    ocultarOpcionesAdministrador();
+    document.getElementById("dashboardAdministrador").style.display = "none";
+    document.getElementById("dashboardVendedor").style.display = "block";
 
-    // Cambiar títulos de las tarjetas
-    document.querySelector("#ventasDia")
-        .parentElement
-        .querySelector(".card-title")
-        .innerText = "Pedidos Pendientes";
+    document.getElementById("menuArqueo").style.display = "none";
+    document.getElementById("menuHistorialCajas").style.display = "none";
+    document.getElementById("menuUsuarios").style.display = "none";
 
-    document.querySelector("#pedidosDia")
-        .parentElement
-        .querySelector(".card-title")
-        .innerText = "Pedidos Entregados";
-
-    document.querySelector("#clientesDia")
-        .parentElement
-        .querySelector(".card-title")
-        .innerText = "Pedidos Anulados";
-
-    document.querySelector("#productosDia")
-        .parentElement
-        .querySelector(".card-title")
-        .innerText = "Pedidos Totales";
-
-    // Valores temporales
-    document.getElementById("ventasDia").innerText = "-";
-    document.getElementById("pedidosDia").innerText = "-";
-    document.getElementById("clientesDia").innerText = "-";
-    document.getElementById("productosDia").innerText = "-";
-
-    // Ocultar gráfico por ahora
-    document.querySelector(".chart-card").style.display = "none";
+    await cargarDashboardVendedor();
 
 }
 
 
-/* =========================
-   OCULTAR OPCIONES ADMIN
-========================= */
-
-function ocultarOpcionesAdministrador() {
-
-    document.querySelector('a[href="arqueo.html"]')
-        .parentElement.style.display = "none";
-
-    document.querySelector('a[href="historial-cajas.html"]')
-        .parentElement.style.display = "none";
-
-}
-
-
-/* =========================
-   MOSTRAR OPCIONES ADMIN
-========================= */
-
-function mostrarOpcionesAdministrador() {
-
-    document.querySelector('a[href="arqueo.html"]')
-        .parentElement.style.display = "";
-
-    document.querySelector('a[href="historial-cajas.html"]')
-        .parentElement.style.display = "";
-
-}
-
-
-/* =========================
-   DASHBOARD TARJETAS
-========================= */
+/* ==========================================
+   DASHBOARD ADMIN
+========================================== */
 
 async function cargarDashboard() {
 
@@ -143,9 +96,8 @@ async function cargarDashboard() {
 
         const response = await fetch("/api/dashboard");
 
-        if (!response.ok) {
-            throw new Error("Error al cargar dashboard");
-        }
+        if (!response.ok)
+            throw new Error("Error cargando dashboard");
 
         const data = await response.json();
 
@@ -170,9 +122,37 @@ async function cargarDashboard() {
 }
 
 
-/* =========================
+/* ==========================================
+   DASHBOARD VENDEDOR
+========================================== */
+
+async function cargarDashboardVendedor() {
+
+    try {
+
+        /*
+            Lo conectaremos cuando hagamos el endpoint.
+
+            Por ahora dejamos valores temporales.
+        */
+
+        document.getElementById("pendientesDia").innerText = "-";
+        document.getElementById("pagadosDia").innerText = "-";
+        document.getElementById("entregadosDia").innerText = "-";
+        document.getElementById("anuladosDia").innerText = "-";
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* ==========================================
    FECHA
-========================= */
+========================================== */
 
 function actualizarFecha() {
 
@@ -195,9 +175,9 @@ function actualizarFecha() {
 }
 
 
-/* =========================
+/* ==========================================
    FORMATO NUMEROS
-========================= */
+========================================== */
 
 function formatearNumero(numero) {
 
@@ -206,9 +186,9 @@ function formatearNumero(numero) {
 }
 
 
-/* =========================
-   GRAFICO
-========================= */
+/* ==========================================
+   GRAFICO VENTAS
+========================================== */
 
 async function crearGraficoVentas() {
 
@@ -216,9 +196,8 @@ async function crearGraficoVentas() {
 
         const response = await fetch("/ventas-semana");
 
-        if (!response.ok) {
-            throw new Error("Error al cargar ventas semana");
-        }
+        if (!response.ok)
+            throw new Error("Error cargando ventas");
 
         const result = await response.json();
 

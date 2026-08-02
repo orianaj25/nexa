@@ -46,6 +46,18 @@ public interface PedidoRepository extends JpaRepository<Pedido,Long> {
 """)
     List<Object[]> ventasPorDia(LocalDateTime inicio, LocalDateTime fin);
 
+    // ==========================
+// ULTIMOS PEDIDOS
+// ==========================
+
+    List<Pedido> findTop10ByOrderByFechaDesc();
+
+    // ==========================
+// PEDIDOS POR ESTADO
+// ==========================
+
+    Long countByEstado(com.pedidos.mayorista.model.enums.EstadoPedido estado);
+
 }
 
 

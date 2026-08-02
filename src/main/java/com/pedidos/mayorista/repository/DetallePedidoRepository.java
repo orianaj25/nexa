@@ -111,4 +111,14 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedido, Lo
     """)
     List<PedidoHistorialDTO> listarTodos();
 
+    @Query("""
+SELECT
+    d.producto.nombre,
+    SUM(d.cantidad)
+FROM DetallePedido d
+GROUP BY d.producto.nombre
+ORDER BY SUM(d.cantidad) DESC
+""")
+    List<Object[]> productosMasVendidos();
+
 }

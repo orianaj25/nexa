@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -18,15 +20,16 @@
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/cards.css">
     <link rel="stylesheet" href="css/dashboard.css">
+
 </head>
 
 <body>
 
 <div class="layout">
 
-    <!-- ========================= -->
-    <!-- SIDEBAR                   -->
-    <!-- ========================= -->
+    <!-- ========================================= -->
+    <!-- SIDEBAR                                   -->
+    <!-- ========================================= -->
 
     <aside class="sidebar">
 
@@ -44,46 +47,92 @@
 
                 <ul>
 
-                    <li>
+                    <li id="menuDashboard">
+
                         <a href="dashboard.html" class="active">
+
                             <i class="bi bi-grid-fill"></i>
+
                             Dashboard
+
                         </a>
+
                     </li>
 
-                    <li>
+                    <li id="menuPedidos">
+
                         <a href="pedidos.html">
+
                             <i class="bi bi-cart-fill"></i>
+
                             Pedidos
+
                         </a>
+
                     </li>
 
-                    <li>
+                    <li id="menuProductos">
+
                         <a href="productos.html">
+
                             <i class="bi bi-box-seam"></i>
+
                             Productos
+
                         </a>
+
                     </li>
 
-                    <li>
+                    <li id="menuHistorialPedidos">
+
                         <a href="historial-pedidos.html">
+
                             <i class="bi bi-clock-history"></i>
+
                             Historial de Pedidos
+
                         </a>
+
                     </li>
 
-                    <li>
+                    <!-- SOLO ADMINISTRADOR -->
+
+                    <li id="menuArqueo">
+
                         <a href="arqueo.html">
+
                             <i class="bi bi-cash-coin"></i>
+
                             Arqueo de Caja
+
                         </a>
+
                     </li>
 
-                    <li>
+                    <li id="menuHistorialCajas">
+
                         <a href="historial-cajas.html">
+
                             <i class="bi bi-archive-fill"></i>
+
                             Historial de Cajas
+
                         </a>
+
+                    </li>
+
+                    <!-- FUTURO -->
+
+                    <li id="menuUsuarios" style="display:none;">
+
+                        <a href="usuarios.html">
+
+                            <i class="bi bi-people-fill"></i>
+
+                            Usuarios
+
+                        </a>
+
                     </li>
 
                 </ul>
@@ -92,42 +141,50 @@
 
         </div>
 
+        <!-- ================================ -->
+        <!-- FOOTER SIDEBAR                   -->
+        <!-- ================================ -->
+
         <div class="sidebar-footer">
 
-            <a href="/logout" title="Cerrar sesión">
+            <a href="/logout" id="btnLogout">
+
                 <i class="bi bi-box-arrow-left"></i>
+
                 <span>Cerrar sesión</span>
+
             </a>
 
         </div>
 
     </aside>
-
-    <!-- ========================= -->
-    <!-- MAIN                      -->
-    <!-- ========================= -->
+    <!-- ========================================= -->
+    <!-- MAIN                                      -->
+    <!-- ========================================= -->
 
     <div class="main">
 
-        <!-- ========================= -->
-        <!-- TOPBAR                    -->
-        <!-- ========================= -->
+        <!-- ========================================= -->
+        <!-- TOPBAR                                    -->
+        <!-- ========================================= -->
 
         <header class="topbar">
 
             <div class="topbar-left">
 
-                <h3>¡Bienvenido!</h3>
+                <h3 id="saludoUsuario">
+                    ¡Bienvenido!
+                </h3>
 
-
+                <span id="rolUsuario" class="topbar-role"></span>
 
             </div>
 
             <div class="topbar-right">
 
-    <span id="fechaActual">
-        <i class="bi bi-calendar3"></i>
-    </span>
+                <span id="fechaActual">
+                    <i class="bi bi-calendar3"></i>
+                </span>
 
                 <i class="bi bi-bell-fill"></i>
 
@@ -135,162 +192,430 @@
 
         </header>
 
-        <!-- ========================= -->
-        <!-- CONTENIDO                 -->
-        <!-- ========================= -->
+        <!-- ========================================= -->
+        <!-- CONTENIDO                                -->
+        <!-- ========================================= -->
 
         <main class="content">
 
-            <!-- Aquí irán las tarjetas -->
+            <!-- ========================================= -->
+            <!-- DASHBOARD ADMINISTRADOR                  -->
+            <!-- ========================================= -->
 
-            <section class="cards-container">
+            <div id="dashboardAdministrador">
 
-                <div class="card">
+                <!-- TARJETAS -->
 
-                    <div class="card-icon green">
-                        <i class="bi bi-currency-dollar"></i>
-                    </div>
+                <section class="cards-container">
 
-                    <div class="card-info">
+                    <div class="card">
 
-                        <div class="card-title">
-                            Ventas del día
+                        <div class="card-icon green">
+                            <i class="bi bi-currency-dollar"></i>
                         </div>
 
-                        <div class="card-value" id="ventasDia">
+                        <div class="card-info">
 
-                        </div>
+                            <div class="card-title">
+                                Ventas del día
+                            </div>
 
-                        <div class="card-growth">
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="card">
-
-                    <div class="card-icon blue">
-                        <i class="bi bi-clipboard-check"></i>
-                    </div>
-
-                    <div class="card-info">
-
-                        <div class="card-title">
-                            Pedidos del día
-                        </div>
-
-                        <div class="card-value" id="pedidosDia">
-
-                        </div>
-
-                        <div class="card-growth">
+                            <div class="card-value"
+                                 id="ventasDia"></div>
 
                         </div>
 
                     </div>
 
-                </div>
+                    <div class="card">
 
-                <div class="card">
-
-                    <div class="card-icon purple">
-                        <i class="bi bi-people-fill"></i>
-                    </div>
-
-                    <div class="card-info">
-
-                        <div class="card-title">
-                            Clientes atendidos
+                        <div class="card-icon blue">
+                            <i class="bi bi-clipboard-check"></i>
                         </div>
 
-                        <div class="card-value" id="clientesDia">
+                        <div class="card-info">
 
-                        </div>
+                            <div class="card-title">
+                                Pedidos del día
+                            </div>
 
-                        <div class="card-growth">
+                            <div class="card-value"
+                                 id="pedidosDia"></div>
 
                         </div>
 
                     </div>
 
-                </div>
+                    <div class="card">
 
-                <div class="card">
-
-                    <div class="card-icon orange">
-                        <i class="bi bi-box-seam"></i>
-                    </div>
-
-                    <div class="card-info">
-
-                        <div class="card-title">
-                            Productos vendidos
+                        <div class="card-icon purple">
+                            <i class="bi bi-people-fill"></i>
                         </div>
 
-                        <div class="card-value" id="productosDia">
+                        <div class="card-info">
 
-                        </div>
+                            <div class="card-title">
+                                Clientes atendidos
+                            </div>
 
-                        <div class="card-growth">
+                            <div class="card-value"
+                                 id="clientesDia"></div>
 
                         </div>
 
                     </div>
 
-                </div>
+                    <div class="card">
 
-            </section>
+                        <div class="card-icon orange">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
 
-            <!-- Aquí irá gráfico + accesos -->
+                        <div class="card-info">
 
-            <section class="dashboard-middle">
+                            <div class="card-title">
+                                Productos vendidos
+                            </div>
 
-                <!-- Ventas últimos 7 días -->
-                <div class="chart-card">
+                            <div class="card-value"
+                                 id="productosDia"></div>
 
-                    <div class="card-header">
-                        <h3>Ventas últimos 7 días</h3>
+                        </div>
+
                     </div>
 
-                    <canvas id="ventasChart"></canvas>
+                </section>
 
-                </div>
+                <!-- GRAFICO + ACCESOS -->
 
-                <!-- Accesos rápidos (luego reemplazará inventario) -->
-                <div class="quick-actions">
+                <section class="dashboard-middle">
 
-                    <h3>Acciones rápidas</h3>
+                    <div class="chart-card">
 
-                    <a href="pedidos.html" class="action-btn primary">
-                        <i class="bi bi-plus-circle"></i>
-                        Crear Pedido
-                    </a>
+                        <div class="card-header">
 
-                    <a href="historial-pedidos.html">
-                        <i class="bi bi-list"></i>
-                        Ver Pedidos
-                    </a>
+                            <h3>
+                                Ventas últimos 7 días
+                            </h3>
 
-                </div>
+                        </div>
 
-            </section>
+                        <canvas id="ventasChart"></canvas>
 
-            <!-- Aquí irán las tablas -->
+                    </div>
 
-            <section class="dashboard-bottom">
+                    <div class="quick-actions">
 
-            </section>
+                        <h3>
+
+                            Acciones rápidas
+
+                        </h3>
+
+                        <a href="pedidos.html"
+                           class="action-btn primary">
+
+                            <i class="bi bi-plus-circle"></i>
+
+                            Crear Pedido
+
+                        </a>
+
+                        <a href="historial-pedidos.html"
+                           class="action-btn">
+
+                            <i class="bi bi-clock-history"></i>
+
+                            Historial de Pedidos
+
+                        </a>
+
+                        <a href="productos.html"
+                           class="action-btn">
+
+                            <i class="bi bi-box-seam"></i>
+
+                            Productos
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+                <!-- PANEL INFERIOR -->
+
+                <section class="dashboard-bottom">
+
+                    <div class="dashboard-box">
+
+                        <h3>
+
+                            Pedidos por Estado
+
+                        </h3>
+
+                        <div id="resumenEstados">
+
+                            <!-- JS -->
+
+                        </div>
+
+                    </div>
+
+                    <div class="dashboard-box">
+
+                        <h3>
+
+                            Últimos Pedidos
+
+                        </h3>
+
+                        <table class="dashboard-table">
+
+                            <thead>
+
+                            <tr>
+
+                                <th>N°</th>
+
+                                <th>Cliente</th>
+
+                                <th>Estado</th>
+
+                                <th>Total</th>
+
+                            </tr>
+
+                            </thead>
+
+                            <tbody id="tablaUltimosPedidos">
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <div class="dashboard-box">
+
+                        <h3>
+
+                            Productos Más Vendidos
+
+                        </h3>
+
+                        <table class="dashboard-table">
+
+                            <thead>
+
+                            <tr>
+
+                                <th>Producto</th>
+
+                                <th>Cantidad</th>
+
+                            </tr>
+
+                            </thead>
+
+                            <tbody id="tablaProductosVendidos">
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+            <!-- ========================================= -->
+            <!-- A PARTIR DE ACA COMIENZA LA PARTE 3       -->
+            <!-- DASHBOARD VENDEDOR                        -->
+            <!-- ========================================= -->
+            <!-- ========================================= -->
+            <!-- DASHBOARD VENDEDOR                        -->
+            <!-- ========================================= -->
+
+            <div id="dashboardVendedor" style="display:none;">
+
+                <!-- TARJETAS -->
+
+                <section class="cards-container">
+
+                    <div class="card">
+
+                        <div class="card-icon blue">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+
+                        <div class="card-info">
+
+                            <div class="card-title">
+                                Pendientes
+                            </div>
+
+                            <div class="card-value"
+                                 id="pendientesDia"></div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card">
+
+                        <div class="card-icon green">
+                            <i class="bi bi-credit-card"></i>
+                        </div>
+
+                        <div class="card-info">
+
+                            <div class="card-title">
+                                Pagados
+                            </div>
+
+                            <div class="card-value"
+                                 id="pagadosDia"></div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card">
+
+                        <div class="card-icon purple">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+
+                        <div class="card-info">
+
+                            <div class="card-title">
+                                Entregados
+                            </div>
+
+                            <div class="card-value"
+                                 id="entregadosDia"></div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card">
+
+                        <div class="card-icon orange">
+                            <i class="bi bi-x-circle"></i>
+                        </div>
+
+                        <div class="card-info">
+
+                            <div class="card-title">
+                                Anulados
+                            </div>
+
+                            <div class="card-value"
+                                 id="anuladosDia"></div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- TABLA + ACCESOS -->
+
+                <section class="dashboard-middle">
+
+                    <div class="chart-card">
+
+                        <div class="card-header">
+
+                            <h3>
+
+                                Últimos Pedidos
+
+                            </h3>
+
+                        </div>
+
+                        <table class="dashboard-table">
+
+                            <thead>
+
+                            <tr>
+
+                                <th>N°</th>
+
+                                <th>Cliente</th>
+
+                                <th>Estado</th>
+
+                                <th>Hora</th>
+
+                            </tr>
+
+                            </thead>
+
+                            <tbody id="tablaPedidosVendedor">
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <div class="quick-actions">
+
+                        <h3>
+
+                            Acciones rápidas
+
+                        </h3>
+
+                        <a href="pedidos.html"
+                           class="action-btn primary">
+
+                            <i class="bi bi-plus-circle"></i>
+
+                            Crear Pedido
+
+                        </a>
+
+                        <a href="historial-pedidos.html"
+                           class="action-btn">
+
+                            <i class="bi bi-clock-history"></i>
+
+                            Historial de Pedidos
+
+                        </a>
+
+                        <a href="productos.html"
+                           class="action-btn">
+
+                            <i class="bi bi-box-seam"></i>
+
+                            Productos
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+            </div>
 
         </main>
 
     </div>
 
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- JavaScript del dashboard -->
+
 <script src="js/dashboard.js"></script>
 
 </body>
+
 </html>
