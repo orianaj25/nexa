@@ -1,7 +1,6 @@
 package com.pedidos.mayorista.service;
 
 import com.pedidos.mayorista.dto.DashboardDTO;
-import com.pedidos.mayorista.dto.EstadosPedidosDTO;
 import com.pedidos.mayorista.dto.ProductoMasVendidoDTO;
 import com.pedidos.mayorista.dto.ResumenEstadosDTO;
 import com.pedidos.mayorista.dto.UltimoPedidoDTO;
