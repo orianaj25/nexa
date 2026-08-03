@@ -70,7 +70,7 @@ public class DashboardController {
     // GRÁFICO VENTAS 7 DÍAS
     // ==========================================
 
-    @GetMapping("/ventas-semana")
+    @GetMapping("/api/dashboard/ventas-semana")
     public Map<String, Object> ventasSemana() {
 
         return dashboardService.ventasUltimos7Dias();

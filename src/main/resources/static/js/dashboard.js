@@ -247,49 +247,6 @@ async function cargarProductosMasVendidos() {
    RESUMEN POR ESTADO
 ========================================== */
 
-async function cargarResumenEstados() {
-
-    try {
-
-        const response =
-            await fetch("/api/dashboard/resumen-estados");
-
-        if (!response.ok) {
-
-            throw new Error("Error cargando estados");
-
-        }
-
-        const estados = await response.json();
-
-        const contenedor =
-            document.getElementById("resumenEstados");
-
-        contenedor.innerHTML = "";
-
-        estados.forEach(item => {
-
-            contenedor.innerHTML += `
-
-                <div class="estado-card">
-
-                    ${badgeEstado(item.estado)}
-
-                    <h2>${item.cantidad}</h2>
-
-                </div>
-
-            `;
-
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-    }
-
-}
 /* ==========================================
    DASHBOARD VENDEDOR
 ========================================== */
@@ -299,7 +256,7 @@ async function cargarDashboardVendedor() {
     try {
 
         const response =
-            await fetch("/api/dashboard/dashboard-vendedor");
+            await fetch("/api/dashboard/dashboard/vendedor");
 
         if (!response.ok) {
 
