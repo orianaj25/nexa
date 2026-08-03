@@ -77,4 +77,15 @@ public class DashboardController {
 
     }
 
+    // ==========================================
+// RESUMEN ESTADOS
+// ==========================================
+
+    @GetMapping("/api/dashboard/resumen-estados")
+    public ResumenEstadosDTO resumenEstados() {
+
+        return dashboardService.obtenerResumenEstados();
+
+    }
+
 }
