@@ -8,6 +8,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 /* ==========================================
+   VARIABLE GLOBAL DEL GRAFICO
+========================================== */
+
+let graficoVentas = null;
+
+
+/* ==========================================
    USUARIO LOGUEADO
 ========================================== */
 
@@ -33,11 +40,11 @@ async function cargarUsuario() {
 
         if (usuario.rol === "ADMINISTRADOR") {
 
-            mostrarDashboardAdministrador();
+            await mostrarDashboardAdministrador();
 
         } else {
 
-            mostrarDashboardVendedor();
+            await mostrarDashboardVendedor();
 
         }
 
@@ -84,8 +91,10 @@ async function mostrarDashboardVendedor() {
     await cargarDashboardVendedor();
 
 }
+
+
 /* ==========================================
-   DASHBOARD ADMINISTRADOR
+   CARGAR DASHBOARD ADMINISTRADOR
 ========================================== */
 
 async function cargarDashboardAdministrador() {
@@ -93,18 +102,18 @@ async function cargarDashboardAdministrador() {
     await Promise.all([
 
         cargarTarjetasAdministrador(),
-        crearGraficoVentas(),
+
         cargarUltimosPedidos(),
+
         cargarProductosMasVendidos(),
-        cargarResumenEstados()
+
+        crearGraficoVentas()
 
     ]);
 
 }
-
-
 /* ==========================================
-   TARJETAS
+   TARJETAS ADMINISTRADOR
 ========================================== */
 
 async function cargarTarjetasAdministrador() {
@@ -150,7 +159,8 @@ async function cargarUltimosPedidos() {
 
     try {
 
-        const response = await fetch("/api/dashboard/ultimos-pedidos");
+        const response =
+            await fetch("/api/dashboard/ultimos-pedidos");
 
         if (!response.ok) {
 
@@ -165,6 +175,27 @@ async function cargarUltimosPedidos() {
 
         tbody.innerHTML = "";
 
+        if (pedidos.length === 0) {
+
+            tbody.innerHTML = `
+
+                <tr>
+
+                    <td colspan="4"
+                        style="text-align:center;padding:20px;color:#888;">
+
+                        No existen pedidos registrados.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            return;
+
+        }
+
         pedidos.forEach(pedido => {
 
             tbody.innerHTML += `
@@ -173,7 +204,7 @@ async function cargarUltimosPedidos() {
 
                     <td>${pedido.numeroPedido}</td>
 
-                    <td>${pedido.dniCliente}</td>
+                    <td>${pedido.dniCliente ?? "-"}</td>
 
                     <td>${badgeEstado(pedido.estado)}</td>
 
@@ -218,6 +249,27 @@ async function cargarProductosMasVendidos() {
 
         tbody.innerHTML = "";
 
+        if (productos.length === 0) {
+
+            tbody.innerHTML = `
+
+                <tr>
+
+                    <td colspan="2"
+                        style="text-align:center;padding:20px;color:#888;">
+
+                        Aún no existen ventas.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            return;
+
+        }
+
         productos.forEach(producto => {
 
             tbody.innerHTML += `
@@ -241,12 +293,6 @@ async function cargarProductosMasVendidos() {
     }
 
 }
-
-
-/* ==========================================
-   RESUMEN POR ESTADO
-========================================== */
-
 /* ==========================================
    DASHBOARD VENDEDOR
 ========================================== */
@@ -256,7 +302,7 @@ async function cargarDashboardVendedor() {
     try {
 
         const response =
-            await fetch("/api/dashboard/dashboard/vendedor");
+            await fetch("/api/dashboard/vendedor");
 
         if (!response.ok) {
 
@@ -266,21 +312,19 @@ async function cargarDashboardVendedor() {
 
         const data = await response.json();
 
-        document.getElementById("pendientesDia").innerText =
-            data.pendientes;
+       document.getElementById("pendientesDia").innerText =
+           data.pendientes;
 
-        document.getElementById("facturacionDia").innerText =
-            data.facturacion;
+       document.getElementById("pagadosDia").innerText =
+           data.pagados;
 
-        document.getElementById("facturadosDia").innerText =
-            data.facturados;
+       document.getElementById("entregadosDia").innerText =
+           data.entregados;
 
-        document.getElementById("anuladosDia").innerText =
-            data.anulados;
+       document.getElementById("anuladosDia").innerText =
+           data.anulados;
 
-        cargarTablaPedidosVendedor(data.ultimosPedidos);
-
-        cargarResumenEstadosVendedor(data.resumenEstados);
+        await cargarUltimosPedidosVendedor();
 
     } catch (error) {
 
@@ -295,113 +339,117 @@ async function cargarDashboardVendedor() {
    TABLA ULTIMOS PEDIDOS VENDEDOR
 ========================================== */
 
-function cargarTablaPedidosVendedor(pedidos) {
+async function cargarUltimosPedidosVendedor() {
 
-    const tbody =
-        document.getElementById("tablaPedidosVendedor");
+    try {
 
-    tbody.innerHTML = "";
+        const response =
+            await fetch("/api/dashboard/ultimos-pedidos");
 
-    pedidos.forEach(pedido => {
+        if (!response.ok) {
 
-        tbody.innerHTML += `
+            throw new Error("Error cargando pedidos");
 
-            <tr>
+        }
 
-                <td>${pedido.numeroPedido}</td>
+        const pedidos = await response.json();
 
-                <td>${pedido.dniCliente}</td>
+        const tbody =
+            document.getElementById("tablaPedidosVendedor");
 
-                <td>${badgeEstado(pedido.estado)}</td>
+        tbody.innerHTML = "";
 
-                <td>$ ${formatearNumero(pedido.total)}</td>
+        if (pedidos.length === 0) {
 
-            </tr>
+            tbody.innerHTML = `
 
-        `;
+                <tr>
 
-    });
+                    <td colspan="4"
+                        style="text-align:center;padding:20px;color:#888;">
+
+                        No existen pedidos registrados.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            return;
+
+        }
+
+        pedidos.forEach(pedido => {
+
+            tbody.innerHTML += `
+
+                <tr>
+
+                    <td>${pedido.numeroPedido}</td>
+
+                    <td>${pedido.dniCliente ?? "-"}</td>
+
+                    <td>${badgeEstado(pedido.estado)}</td>
+
+                    <td>$ ${formatearNumero(pedido.total)}</td>
+
+                </tr>
+
+            `;
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
 
 }
 
 
 /* ==========================================
-   RESUMEN ESTADOS VENDEDOR
-========================================== */
-
-function cargarResumenEstadosVendedor(estados) {
-
-    const contenedor =
-        document.getElementById("resumenEstadosVendedor");
-
-    contenedor.innerHTML = "";
-
-    estados.forEach(item => {
-
-        contenedor.innerHTML += `
-
-            <div class="estado-card">
-
-                ${badgeEstado(item.estado)}
-
-                <h2>${item.cantidad}</h2>
-
-            </div>
-
-        `;
-
-    });
-
-}
-
-/* ==========================================
-   BADGES DE ESTADO
+   BADGES ESTADOS
 ========================================== */
 
 function badgeEstado(estado) {
-
-    let clase = "";
 
     switch (estado) {
 
         case "PENDIENTE_FACTURACION":
 
-            clase = "badge bg-warning text-dark";
-            estado = "Pendiente";
-
-            break;
+            return `<span class="badge bg-warning text-dark">
+                        Pendiente
+                    </span>`;
 
         case "ENVIADO_A_FACTURACION":
 
-            clase = "badge bg-primary";
-            estado = "Enviado";
-
-            break;
+            return `<span class="badge bg-primary">
+                        Enviado a Facturación
+                    </span>`;
 
         case "FACTURADO":
 
-            clase = "badge bg-success";
-            estado = "Facturado";
-
-            break;
+            return `<span class="badge bg-success">
+                        Facturado
+                    </span>`;
 
         case "ANULADO":
 
-            clase = "badge bg-danger";
-            estado = "Anulado";
-
-            break;
+            return `<span class="badge bg-danger">
+                        Anulado
+                    </span>`;
 
         default:
 
-            clase = "badge bg-secondary";
+            return `<span class="badge bg-secondary">
+                        ${estado}
+                    </span>`;
 
     }
 
-    return `<span class="${clase}">${estado}</span>`;
-
 }
-
 
 /* ==========================================
    GRAFICO VENTAS
@@ -412,7 +460,7 @@ async function crearGraficoVentas() {
     try {
 
         const response =
-            await fetch("/api/dashboard/ventas-semana");
+            await fetch("/ventas-semana");
 
         if (!response.ok) {
 
@@ -427,7 +475,16 @@ async function crearGraficoVentas() {
 
         if (!ctx) return;
 
-        new Chart(ctx, {
+        // Destruye el gráfico anterior
+        if (graficoVentas !== null) {
+
+            graficoVentas.destroy();
+
+            graficoVentas = null;
+
+        }
+
+        graficoVentas = new Chart(ctx, {
 
             type: "line",
 
@@ -448,9 +505,11 @@ async function crearGraficoVentas() {
 
                     fill: true,
 
-                    tension: .4,
+                    tension: .35,
 
                     pointRadius: 4,
+
+                    pointHoverRadius: 6,
 
                     pointBackgroundColor:
                         "#3b82f6"
@@ -463,11 +522,23 @@ async function crearGraficoVentas() {
 
                 responsive: true,
 
+                maintainAspectRatio: false,
+
                 plugins: {
 
                     legend: {
 
                         display: true
+
+                    }
+
+                },
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true
 
                     }
 
@@ -484,8 +555,6 @@ async function crearGraficoVentas() {
     }
 
 }
-
-
 /* ==========================================
    FECHA
 ========================================== */
@@ -517,13 +586,19 @@ function actualizarFecha() {
 
 function formatearNumero(numero) {
 
-    return new Intl.NumberFormat("es-AR")
-        .format(numero);
+    if (numero == null) {
+
+        return "0";
+
+    }
+
+    return new Intl.NumberFormat("es-AR").format(numero);
 
 }
 
+
 /* ==========================================
-   MENSAJES CUANDO NO HAY DATOS
+   MENSAJE SIN DATOS
 ========================================== */
 
 function mostrarSinDatos(idTabla, columnas, mensaje) {
@@ -537,7 +612,7 @@ function mostrarSinDatos(idTabla, columnas, mensaje) {
         <tr>
 
             <td colspan="${columnas}"
-                style="text-align:center;color:#888;padding:25px;">
+                style="text-align:center;padding:25px;color:#888;">
 
                 ${mensaje}
 
@@ -579,37 +654,15 @@ function mostrarCargando(idTabla, columnas) {
 
 
 /* ==========================================
-   VARIABLE GLOBAL DEL GRAFICO
-========================================== */
-
-let graficoVentas = null;
-
-
-/* ==========================================
-   DESTRUIR GRAFICO SI YA EXISTE
-========================================== */
-
-function destruirGrafico() {
-
-    if (graficoVentas != null) {
-
-        graficoVentas.destroy();
-
-        graficoVentas = null;
-
-    }
-
-}
-
-/* ==========================================
-   ACTUALIZAR DASHBOARD AUTOMÁTICAMENTE
+   ACTUALIZAR DASHBOARD CADA 30 SEGUNDOS
 ========================================== */
 
 setInterval(async () => {
 
     try {
 
-        const rol = document.getElementById("rolUsuario").innerText;
+        const rol =
+            document.getElementById("rolUsuario").innerText;
 
         if (rol === "ADMINISTRADOR") {
 
