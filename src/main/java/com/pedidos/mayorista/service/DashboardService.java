@@ -1,8 +1,8 @@
 package com.pedidos.mayorista.service;
 
 import com.pedidos.mayorista.dto.DashboardDTO;
+import com.pedidos.mayorista.dto.DashboardVendedorDTO;
 import com.pedidos.mayorista.dto.ProductoMasVendidoDTO;
-import com.pedidos.mayorista.dto.ResumenEstadosDTO;
 import com.pedidos.mayorista.dto.UltimoPedidoDTO;
 import com.pedidos.mayorista.model.Pedido;
 import com.pedidos.mayorista.model.enums.EstadoPedido;
@@ -20,6 +20,7 @@ import java.util.*;
 public class DashboardService {
 
     private final PedidoRepository pedidoRepository;
+
     private final DetallePedidoRepository detalleRepository;
 
     public DashboardService(
@@ -28,36 +29,37 @@ public class DashboardService {
 
         this.pedidoRepository = pedidoRepository;
         this.detalleRepository = detalleRepository;
+
     }
 
-// =====================================================
-// DASHBOARD PRINCIPAL (Tarjetas superiores)
-// =====================================================
-public DashboardDTO obtenerDashboard() {
+    // =====================================================
+    // DASHBOARD PRINCIPAL
+    // =====================================================
 
-    LocalDate hoy = LocalDate.now();
+    public DashboardDTO obtenerDashboard() {
 
-    LocalDateTime inicio = hoy.atStartOfDay();
+        LocalDate hoy = LocalDate.now();
 
-    LocalDateTime fin = hoy.atTime(23, 59, 59);
+        LocalDateTime inicio = hoy.atStartOfDay();
 
-    return new DashboardDTO(
+        LocalDateTime fin = hoy.atTime(23,59,59);
 
-            pedidoRepository.ventasDelDia(inicio, fin),
+        return new DashboardDTO(
 
-            pedidoRepository.pedidosDelDia(inicio, fin),
+                pedidoRepository.ventasDelDia(inicio, fin),
 
-            pedidoRepository.clientesDelDia(inicio, fin),
+                pedidoRepository.pedidosDelDia(inicio, fin),
 
-            detalleRepository.productosVendidos(inicio, fin)
+                pedidoRepository.clientesDelDia(inicio, fin),
 
-    );
+                detalleRepository.productosVendidos(inicio, fin)
 
-}
+        );
 
+    }
 
     // =====================================================
-    // ÚLTIMOS PEDIDOS (Administrador)
+    // ÚLTIMOS PEDIDOS
     // =====================================================
 
     public List<UltimoPedidoDTO> obtenerUltimosPedidos() {
@@ -65,7 +67,8 @@ public DashboardDTO obtenerDashboard() {
         List<Pedido> pedidos =
                 pedidoRepository.findTop10ByOrderByFechaDesc();
 
-        List<UltimoPedidoDTO> respuesta = new ArrayList<>();
+        List<UltimoPedidoDTO> respuesta =
+                new ArrayList<>();
 
         for (Pedido pedido : pedidos) {
 
@@ -93,13 +96,12 @@ public DashboardDTO obtenerDashboard() {
 
 
     // =====================================================
-    // RESUMEN DE ESTADOS
-    // (Dashboard vendedor)
+    // DASHBOARD VENDEDOR
     // =====================================================
 
-    public ResumenEstadosDTO obtenerResumenEstados() {
+    public DashboardVendedorDTO obtenerDashboardVendedor() {
 
-        return new ResumenEstadosDTO(
+        return new DashboardVendedorDTO(
 
                 pedidoRepository.countByEstado(
                         EstadoPedido.PENDIENTE_FACTURACION
@@ -120,8 +122,6 @@ public DashboardDTO obtenerDashboard() {
         );
 
     }
-
-
     // =====================================================
     // PRODUCTOS MÁS VENDIDOS
     // =====================================================
@@ -154,67 +154,74 @@ public DashboardDTO obtenerDashboard() {
 
     }
 
+    // =====================================================
+    // VENTAS ÚLTIMOS 7 DÍAS
+    // =====================================================
 
-// =====================================================
-// VENTAS ÚLTIMOS 7 DÍAS
-// =====================================================
-public Map<String, Object> ventasUltimos7Dias() {
+    public Map<String, Object> ventasUltimos7Dias() {
 
-    LocalDateTime fin = LocalDateTime.now();
+        LocalDateTime fin = LocalDateTime.now();
 
-    LocalDateTime inicio = fin.minusDays(6);
+        LocalDateTime inicio = fin.minusDays(6);
 
-    List<Object[]> resultados =
-            pedidoRepository.ventasPorDia(inicio, fin);
+        List<Object[]> resultados =
+                pedidoRepository.ventasPorDia(inicio, fin);
 
-    Map<LocalDate, BigDecimal> mapa = new HashMap<>();
+        Map<LocalDate, BigDecimal> mapa =
+                new HashMap<>();
 
-    for (Object[] fila : resultados) {
+        for (Object[] fila : resultados) {
 
-        LocalDate fecha = ((java.sql.Date) fila[0]).toLocalDate();
+            LocalDate fecha =
+                    ((java.sql.Date) fila[0]).toLocalDate();
 
-        BigDecimal total = (BigDecimal) fila[1];
+            BigDecimal total =
+                    (BigDecimal) fila[1];
 
-        mapa.put(fecha, total);
+            mapa.put(fecha, total);
+
+        }
+
+        List<String> labels =
+                new ArrayList<>();
+
+        List<Integer> data =
+                new ArrayList<>();
+
+        for (int i = 6; i >= 0; i--) {
+
+            LocalDate dia =
+                    LocalDate.now().minusDays(i);
+
+            labels.add(
+
+                    dia.getDayOfWeek()
+                            .getDisplayName(
+                                    TextStyle.SHORT,
+                                    new Locale("es", "AR")
+                            )
+
+            );
+
+            BigDecimal total =
+                    mapa.getOrDefault(
+                            dia,
+                            BigDecimal.ZERO
+                    );
+
+            data.add(total.intValue());
+
+        }
+
+        Map<String, Object> response =
+                new HashMap<>();
+
+        response.put("labels", labels);
+
+        response.put("data", data);
+
+        return response;
 
     }
-
-    List<String> labels = new ArrayList<>();
-
-    List<Integer> ventas = new ArrayList<>();
-
-    for (int i = 6; i >= 0; i--) {
-
-        LocalDate dia = LocalDate.now().minusDays(i);
-
-        labels.add(
-
-                dia.getDayOfWeek()
-                        .getDisplayName(
-                                TextStyle.SHORT,
-                                new Locale("es", "AR")
-                        )
-
-        );
-
-        BigDecimal valor =
-                mapa.getOrDefault(
-                        dia,
-                        BigDecimal.ZERO
-                );
-
-        ventas.add(valor.intValue());
-
-    }
-
-    Map<String, Object> response = new HashMap<>();
-
-    response.put("labels", labels);
-
-    response.put("data", ventas);
-
-    return response;
-
-}
 
 }

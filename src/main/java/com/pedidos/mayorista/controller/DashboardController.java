@@ -1,8 +1,8 @@
 package com.pedidos.mayorista.controller;
 
 import com.pedidos.mayorista.dto.DashboardDTO;
+import com.pedidos.mayorista.dto.DashboardVendedorDTO;
 import com.pedidos.mayorista.dto.ProductoMasVendidoDTO;
-import com.pedidos.mayorista.dto.ResumenEstadosDTO;
 import com.pedidos.mayorista.dto.UltimoPedidoDTO;
 import com.pedidos.mayorista.service.DashboardService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,9 +22,9 @@ public class DashboardController {
 
     }
 
-    // ==========================================
+    // =====================================================
     // DASHBOARD ADMINISTRADOR
-    // ==========================================
+    // =====================================================
 
     @GetMapping("/api/dashboard")
     public DashboardDTO dashboard() {
@@ -33,20 +33,20 @@ public class DashboardController {
 
     }
 
-    // ==========================================
+    // =====================================================
     // DASHBOARD VENDEDOR
-    // ==========================================
+    // =====================================================
 
     @GetMapping("/api/dashboard/vendedor")
-    public ResumenEstadosDTO dashboardVendedor() {
+    public DashboardVendedorDTO dashboardVendedor() {
 
-        return dashboardService.obtenerResumenEstados();
+        return dashboardService.obtenerDashboardVendedor();
 
     }
 
-    // ==========================================
+    // =====================================================
     // ÚLTIMOS PEDIDOS
-    // ==========================================
+    // =====================================================
 
     @GetMapping("/api/dashboard/ultimos-pedidos")
     public List<UltimoPedidoDTO> ultimosPedidos() {
@@ -55,9 +55,9 @@ public class DashboardController {
 
     }
 
-    // ==========================================
+    // =====================================================
     // PRODUCTOS MÁS VENDIDOS
-    // ==========================================
+    // =====================================================
 
     @GetMapping("/api/dashboard/productos-mas-vendidos")
     public List<ProductoMasVendidoDTO> productosMasVendidos() {
@@ -66,25 +66,14 @@ public class DashboardController {
 
     }
 
-    // ==========================================
-    // GRÁFICO VENTAS 7 DÍAS
-    // ==========================================
+    // =====================================================
+    // GRÁFICO VENTAS ÚLTIMOS 7 DÍAS
+    // =====================================================
 
     @GetMapping("/api/dashboard/ventas-semana")
     public Map<String, Object> ventasSemana() {
 
         return dashboardService.ventasUltimos7Dias();
-
-    }
-
-    // ==========================================
-// RESUMEN ESTADOS
-// ==========================================
-
-    @GetMapping("/api/dashboard/resumen-estados")
-    public ResumenEstadosDTO resumenEstados() {
-
-        return dashboardService.obtenerResumenEstados();
 
     }
 

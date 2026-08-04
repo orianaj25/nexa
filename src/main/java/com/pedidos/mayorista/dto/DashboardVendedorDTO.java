@@ -8,11 +8,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DashboardVendedorDTO {
 
+
     private Long pendientes;
 
-    private Long pagados;
+    private Long facturacion;
 
-    private Long entregados;
+    private Long facturados;
 
     private Long anulados;
 

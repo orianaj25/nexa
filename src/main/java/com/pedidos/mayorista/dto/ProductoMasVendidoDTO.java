@@ -10,6 +10,6 @@ public class ProductoMasVendidoDTO {
 
     private String producto;
 
-    private Long cantidad;
+    private Long cantidadVendida;
 
 }
