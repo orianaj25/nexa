@@ -21,10 +21,10 @@ function cargar() {
 
             response.data.forEach(producto => {
 
-                const tipoTexto =
-                    producto.tipoVenta === "KILO"
-                        ? "Por kilogramo"
-                        : "Por unidad";
+               const tipoTexto =
+                   producto.tipoVenta === "KILOGRAMO"
+                       ? "Por kilogramo"
+                       : "Por unidad";
 
                 tabla.innerHTML += `
                     <tr>
