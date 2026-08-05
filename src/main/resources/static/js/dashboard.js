@@ -272,9 +272,8 @@ async function cargarProductosMasVendidos() {
 
                 <tr>
 
-                    <td>${producto.nombre}</td>
-
-                    <td>${producto.cantidadVendida}</td>
+                  <td>${producto.producto}</td>
+                  <td>${producto.cantidadVendida}</td>
 
                 </tr>
 
@@ -299,8 +298,7 @@ async function cargarDashboardVendedor() {
 
     try {
 
-        const response =
-            await fetch("/api/dashboard/vendedor");
+        const response = await fetch("/api/dashboard/vendedor");
 
         if (!response.ok) {
 
@@ -313,11 +311,11 @@ async function cargarDashboardVendedor() {
         document.getElementById("pendientesDia").innerText =
             data.pendientes;
 
-        document.getElementById("pagadosDia").innerText =
-            data.pagados;
+        document.getElementById("facturacionDia").innerText =
+            data.facturacion;
 
-        document.getElementById("entregadosDia").innerText =
-            data.entregados;
+        document.getElementById("facturadosDia").innerText =
+            data.facturados;
 
         document.getElementById("anuladosDia").innerText =
             data.anulados;
