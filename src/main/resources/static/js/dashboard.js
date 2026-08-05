@@ -406,7 +406,6 @@ async function cargarUltimosPedidosVendedor() {
 /* ==========================================
    DASHBOARD VENDEDOR
 ========================================== */
-
 async function cargarDashboardVendedor() {
 
     try {
@@ -425,11 +424,11 @@ async function cargarDashboardVendedor() {
         document.getElementById("pendientesDia").innerText =
             formatearNumero(data.pendientes);
 
-        document.getElementById("pagadosDia").innerText =
-            formatearNumero(data.pagados);
+        document.getElementById("facturacionDia").innerText =
+            formatearNumero(data.facturacion);
 
-        document.getElementById("entregadosDia").innerText =
-            formatearNumero(data.entregados);
+        document.getElementById("facturadosDia").innerText =
+            formatearNumero(data.facturados);
 
         document.getElementById("anuladosDia").innerText =
             formatearNumero(data.anulados);
