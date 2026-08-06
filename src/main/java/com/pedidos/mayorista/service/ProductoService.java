@@ -16,32 +16,75 @@ public class ProductoService {
         this.repo = repo;
     }
 
+    // ==========================================
+    // LISTAR
+    // ==========================================
+
     public List<Producto> listar() {
         return repo.findAll();
     }
 
-    public Producto guardar(Producto p) {
-        return repo.save(p);
+    // ==========================================
+    // GUARDAR
+    // ==========================================
+
+    public Producto guardar(Producto producto) {
+
+        if (producto.getActivo() == null) {
+            producto.setActivo(true);
+        }
+
+        if (producto.getStock() == null) {
+            producto.setStock(0);
+        }
+
+        if (producto.getStockMinimo() == null) {
+            producto.setStockMinimo(0);
+        }
+
+        return repo.save(producto);
     }
+
+    // ==========================================
+    // BUSCAR
+    // ==========================================
 
     public Optional<Producto> buscarPorId(Long id) {
         return repo.findById(id);
     }
 
+    // ==========================================
+    // ACTUALIZAR
+    // ==========================================
+
     public Producto actualizar(Long id, Producto nuevo) {
+
         return repo.findById(id)
-                .map(p -> {
-                    p.setNombre(nuevo.getNombre());
-                    p.setCosto(nuevo.getCosto());
-                    p.setPrecioVenta(nuevo.getPrecioVenta());
-                    p.setTipoVenta(nuevo.getTipoVenta());
-                    return repo.save(p);
+                .map(producto -> {
+
+                    producto.setCodigo(nuevo.getCodigo());
+                    producto.setNombre(nuevo.getNombre());
+                    producto.setCosto(nuevo.getCosto());
+                    producto.setPrecioVenta(nuevo.getPrecioVenta());
+                    producto.setTipoVenta(nuevo.getTipoVenta());
+                    producto.setStock(nuevo.getStock());
+                    producto.setStockMinimo(nuevo.getStockMinimo());
+                    producto.setActivo(nuevo.getActivo());
+
+                    return repo.save(producto);
+
                 })
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() ->
+                        new RuntimeException("Producto no encontrado"));
+
     }
+
+    // ==========================================
+    // ELIMINAR
+    // ==========================================
 
     public void eliminar(Long id) {
         repo.deleteById(id);
     }
-}
 
+}

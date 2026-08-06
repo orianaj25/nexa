@@ -25,4 +25,11 @@ public class Producto {
     private Double costo;
     private BigDecimal precioVenta;
     private String tipoVenta;
+    private String codigo;
+
+    private Integer stock;
+
+    private Integer stockMinimo;
+
+    private Boolean activo;
 }

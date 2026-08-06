@@ -1,5 +1,5 @@
 // =====================================================
-// VOLGA - Productos
+// NEXA - Productos
 // =====================================================
 
 const API = "/api/productos";
@@ -21,32 +21,60 @@ function cargar() {
 
             response.data.forEach(producto => {
 
-               const tipoTexto =
-                   producto.tipoVenta === "KILOGRAMO"
-                       ? "Por kilogramo"
-                       : "Por unidad";
+                const tipoTexto =
+                    producto.tipoVenta === "KILOGRAMO"
+                        ? "Por kilogramo"
+                        : "Por unidad";
+
+                const estadoBadge =
+                    producto.activo
+                        ? `<span class="badge bg-success">Activo</span>`
+                        : `<span class="badge bg-danger">Inactivo</span>`;
 
                 tabla.innerHTML += `
+
                     <tr>
+
+                        <td>${producto.codigo ?? ""}</td>
 
                         <td>${producto.nombre}</td>
 
-                        <td>${producto.costo}</td>
+                        <td>$ ${producto.costo}</td>
 
-                        <td>${producto.precioVenta}</td>
+                        <td>$ ${producto.precioVenta}</td>
 
                         <td>${tipoTexto}</td>
+
+                        <td>${producto.stock}</td>
+
+                        <td>${producto.stockMinimo}</td>
+
+                        <td>${estadoBadge}</td>
 
                         <td>
 
                             <button
                                 class="btn btn-sm btn-warning"
                                 onclick="cargarEdicion(
+
                                     ${producto.id},
-                                    '${producto.nombre}',
+
+                                    '${(producto.codigo ?? "").replace(/'/g,"\\'")}',
+
+                                    '${producto.nombre.replace(/'/g,"\\'")}',
+
                                     ${producto.costo},
+
                                     ${producto.precioVenta},
-                                    '${producto.tipoVenta}'
+
+                                    '${producto.tipoVenta}',
+
+                                    ${producto.stock},
+
+                                    ${producto.stockMinimo},
+
+                                    ${producto.activo}
+
                                 )">
 
                                 Editar
@@ -64,6 +92,7 @@ function cargar() {
                         </td>
 
                     </tr>
+
                 `;
 
             });
@@ -81,17 +110,45 @@ function cargar() {
 // GUARDAR
 // =====================================================
 
+// =====================================================
+// GUARDAR
+// =====================================================
+
 function guardar() {
 
     const producto = {
 
-        nombre: document.getElementById("nombre").value,
+        codigo:
+            document.getElementById("codigo").value,
 
-        costo: document.getElementById("costo").value,
+        nombre:
+            document.getElementById("nombre").value,
 
-        precioVenta: document.getElementById("precio").value,
+        costo:
+            Number(
+                document.getElementById("costo").value
+            ),
 
-        tipoVenta: document.getElementById("tipoVenta").value
+        precioVenta:
+            Number(
+                document.getElementById("precio").value
+            ),
+
+        tipoVenta:
+            document.getElementById("tipoVenta").value,
+
+        stock:
+            Number(
+                document.getElementById("stock").value
+            ),
+
+        stockMinimo:
+            Number(
+                document.getElementById("stockMinimo").value
+            ),
+
+        activo:
+            document.getElementById("activo").checked
 
     };
 
@@ -113,40 +170,59 @@ function guardar() {
 
     } else {
 
-        axios.put(API + "/" + editandoId, producto)
+        axios.put(
 
-            .then(() => {
+            API + "/" + editandoId,
 
-                editandoId = null;
+            producto
 
-                limpiar();
+        )
 
-                document.getElementById("tituloForm").innerText =
-                    "Nuevo Producto";
+        .then(() => {
 
-                document
-                    .getElementById("cancelarBtn")
-                    .classList.add("d-none");
+            editandoId = null;
 
-            })
+            limpiar();
 
-            .catch(error => {
+            document.getElementById("tituloForm").innerText =
+                "Nuevo Producto";
 
-                console.error(error);
+            document
+                .getElementById("cancelarBtn")
+                .classList.add("d-none");
 
-            });
+        })
+
+        .catch(error => {
+
+            console.error(error);
+
+        });
 
     }
 
 }
-
 // =====================================================
 // EDITAR
 // =====================================================
 
-function cargarEdicion(id, nombre, costo, precio, tipoVenta) {
+function cargarEdicion(
+
+    id,
+    codigo,
+    nombre,
+    costo,
+    precio,
+    tipoVenta,
+    stock,
+    stockMinimo,
+    activo
+
+) {
 
     editandoId = id;
+
+    document.getElementById("codigo").value = codigo;
 
     document.getElementById("nombre").value = nombre;
 
@@ -156,6 +232,12 @@ function cargarEdicion(id, nombre, costo, precio, tipoVenta) {
 
     document.getElementById("tipoVenta").value = tipoVenta;
 
+    document.getElementById("stock").value = stock;
+
+    document.getElementById("stockMinimo").value = stockMinimo;
+
+    document.getElementById("activo").checked = activo;
+
     document.getElementById("tituloForm").innerText =
         "Editar Producto";
 
@@ -164,6 +246,7 @@ function cargarEdicion(id, nombre, costo, precio, tipoVenta) {
         .classList.remove("d-none");
 
 }
+
 
 // =====================================================
 // CANCELAR
@@ -185,34 +268,6 @@ function cancelar() {
 }
 
 // =====================================================
-// ELIMINAR
-// =====================================================
-
-function eliminar(id) {
-
-    if (!confirm("¿Seguro que desea eliminar este producto?")) {
-
-        return;
-
-    }
-
-    axios.delete(API + "/" + id)
-
-        .then(() => {
-
-            cargar();
-
-        })
-
-        .catch(error => {
-
-            console.error(error);
-
-        });
-
-}
-
-// =====================================================
 // FILTRAR
 // =====================================================
 
@@ -229,25 +284,38 @@ function filtrarProductos() {
 
     filas.forEach(fila => {
 
-        const nombre =
+        const codigo =
             fila.children[0]
                 .innerText
                 .toLowerCase();
 
+        const nombre =
+            fila.children[1]
+                .innerText
+                .toLowerCase();
+
         fila.style.display =
+
+            codigo.includes(texto) ||
+
             nombre.includes(texto)
+
                 ? ""
+
                 : "none";
 
     });
 
 }
 
+
 // =====================================================
 // LIMPIAR
 // =====================================================
 
 function limpiar() {
+
+    document.getElementById("codigo").value = "";
 
     document.getElementById("nombre").value = "";
 
@@ -257,27 +325,26 @@ function limpiar() {
 
     document.getElementById("tipoVenta").value = "UNIDAD";
 
+    document.getElementById("stock").value = "";
+
+    document.getElementById("stockMinimo").value = "";
+
+    document.getElementById("activo").checked = true;
+
     cargar();
 
 }
-
-
 
 // ===============================
 // IMPORTAR EXCEL
 // ===============================
 
-async function importarExcel(){
-
-
+async function importarExcel() {
 
     const archivo =
-        document.getElementById("archivoExcel")
-        .files[0];
+        document.getElementById("archivoExcel").files[0];
 
-
-
-    if(!archivo){
+    if (!archivo) {
 
         alert("Seleccione un archivo Excel");
 
@@ -285,201 +352,187 @@ async function importarExcel(){
 
     }
 
+    const formData = new FormData();
 
+    formData.append("archivo", archivo);
 
-    const formData =
-        new FormData();
+    try {
 
-
-
-    formData.append(
-        "archivo",
-        archivo
-    );
-
-
-
-
-
-    try{
-
-
-        const respuesta =
-        await axios.post(
+        const respuesta = await axios.post(
 
             `${API}/importar`,
 
             formData,
 
             {
-                headers:{
+
+                headers: {
+
                     "Content-Type":
-                    "multipart/form-data"
+                        "multipart/form-data"
+
                 }
+
             }
 
         );
 
+        mostrarResultadoImportacion(respuesta.data);
 
+        cargar();
 
-
-        mostrarResultadoImportacion(
-            respuesta.data
-        );
-
-
-
-cargar();
-
-
-
-
-    }catch(error){
-
-
+    } catch (error) {
 
         console.error(error);
 
-
         document.getElementById(
             "resultadoImportacion"
-        )
-        .innerHTML = `
+        ).innerHTML = `
 
-        <div class="alert alert-danger">
+            <div class="alert alert-danger">
 
-        Error importando archivo:
-        ${error.response?.data || error.message}
+                Error importando archivo.
 
-        </div>
+                <br>
+
+                ${error.response?.data || error.message}
+
+            </div>
 
         `;
 
-
     }
 
-
-
 }
-
-
-
-
-
-
 
 
 // ===============================
 // RESULTADO IMPORTACION
 // ===============================
 
-function mostrarResultadoImportacion(data){
-
-
+function mostrarResultadoImportacion(data) {
 
     document.getElementById(
         "resultadoImportacion"
-    )
-    .innerHTML = `
+    ).innerHTML = `
 
+        <div class="alert alert-success">
 
-    <div class="alert alert-success">
+            <strong>Importación finalizada</strong>
 
+            <hr>
 
-        Importación finalizada.
+            Productos importados:
+            <b>${data.importados ?? 0}</b>
 
+            <br>
 
-        <br>
+            Errores:
+            <b>${data.errores ?? 0}</b>
 
-
-        Productos importados:
-        ${data.importados ?? 0}
-
-
-        <br>
-
-
-        Errores:
-        ${data.errores ?? 0}
-
-
-    </div>
-
+        </div>
 
     `;
 
-
 }
-
-
-
-
-
 
 
 // ===============================
 // PLANTILLA EXCEL
 // ===============================
 
-function descargarPlantilla(){
-
+function descargarPlantilla() {
 
     const datos = [
 
-
         {
-            Nombre:"Coca Cola 2.25",
-            Costo:1800,
-            PrecioVenta:2500,
-            TipoVenta:"UNIDAD"
+
+            Codigo: "1001",
+
+            Nombre: "Coca Cola 2.25",
+
+            Costo: 1800,
+
+            PrecioVenta: 2500,
+
+            TipoVenta: "UNIDAD",
+
+            Stock: 25,
+
+            StockMinimo: 5,
+
+            Activo: true
+
         },
 
-
         {
-            Nombre:"Carne Picada",
-            Costo:8500,
-            PrecioVenta:12000,
-            TipoVenta:"KILOGRAMO"
+
+            Codigo: "2001",
+
+            Nombre: "Carne Picada",
+
+            Costo: 8500,
+
+            PrecioVenta: 12000,
+
+            TipoVenta: "KILOGRAMO",
+
+            Stock: 40,
+
+            StockMinimo: 8,
+
+            Activo: true
+
         },
 
-
         {
-            Nombre:"Pan Francés",
-            Costo:900,
-            PrecioVenta:1400,
-            TipoVenta:"UNIDAD"
+
+            Codigo: "3001",
+
+            Nombre: "Pan Francés",
+
+            Costo: 900,
+
+            PrecioVenta: 1400,
+
+            TipoVenta: "UNIDAD",
+
+            Stock: 70,
+
+            StockMinimo: 15,
+
+            Activo: true
+
         }
 
-
     ];
-
-
 
     const hoja =
         XLSX.utils.json_to_sheet(datos);
 
-
-
     const libro =
         XLSX.utils.book_new();
 
-
-
     XLSX.utils.book_append_sheet(
+
         libro,
+
         hoja,
+
         "Productos"
+
     );
-
-
 
     XLSX.writeFile(
+
         libro,
+
         "Plantilla_Productos_NEXA.xlsx"
+
     );
 
-
 }
+
 
 // =====================================================
 // INICIO
