@@ -268,6 +268,36 @@ function cancelar() {
 }
 
 // =====================================================
+// ELIMINAR
+// =====================================================
+
+function eliminar(id) {
+
+    if (!confirm("¿Seguro que desea eliminar este producto?")) {
+
+        return;
+
+    }
+
+    axios.delete(API + "/" + id)
+
+        .then(() => {
+
+            cargar();
+
+        })
+
+        .catch(error => {
+
+            console.error(error);
+
+            alert("No se pudo eliminar el producto.");
+
+        });
+
+}
+
+// =====================================================
 // FILTRAR
 // =====================================================
 
