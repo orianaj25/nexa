@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Optional;
 
 @Service
 public class ExcelProductoService {
@@ -16,14 +17,17 @@ public class ExcelProductoService {
     private final ProductoRepository productoRepository;
 
     public ExcelProductoService(ProductoRepository productoRepository) {
+
         this.productoRepository = productoRepository;
+
     }
 
     public ImportacionProductosDTO importar(MultipartFile archivo) throws IOException {
 
         ImportacionProductosDTO resultado = new ImportacionProductosDTO();
 
-        Workbook workbook = WorkbookFactory.create(archivo.getInputStream());
+        Workbook workbook =
+                WorkbookFactory.create(archivo.getInputStream());
 
         Sheet hoja = workbook.getSheetAt(0);
 
@@ -37,18 +41,41 @@ public class ExcelProductoService {
 
             try {
 
-                String nombre = obtenerTexto(fila.getCell(0));
+                String codigo =
+                        obtenerTexto(fila.getCell(0));
 
-                if (nombre.isBlank()) {
-                    throw new RuntimeException("Nombre vacío");
-                }
+                String nombre =
+                        obtenerTexto(fila.getCell(1));
 
-                if (productoRepository.existsByNombreIgnoreCase(nombre)) {
-                    throw new RuntimeException("Producto duplicado");
-                }
+                Double costo =
+                        obtenerDouble(fila.getCell(2));
+
+                BigDecimal precioVenta =
+                        obtenerBigDecimal(fila.getCell(3));
 
                 String tipoVenta =
-                        obtenerTexto(fila.getCell(3)).toUpperCase();
+                        obtenerTexto(fila.getCell(4)).toUpperCase();
+
+                Integer stock =
+                        obtenerInteger(fila.getCell(5));
+
+                Integer stockMinimo =
+                        obtenerInteger(fila.getCell(6));
+
+                Boolean activo =
+                        obtenerBoolean(fila.getCell(7));
+
+                if (codigo.isBlank()) {
+
+                    throw new RuntimeException("Código vacío");
+
+                }
+
+                if (nombre.isBlank()) {
+
+                    throw new RuntimeException("Nombre vacío");
+
+                }
 
                 if (!tipoVenta.equals("UNIDAD")
                         && !tipoVenta.equals("KILOGRAMO")) {
@@ -58,20 +85,36 @@ public class ExcelProductoService {
                     );
 
                 }
+                Producto producto;
 
-                Producto producto = new Producto();
+                Optional<Producto> existente =
+                        productoRepository.findByCodigo(codigo);
+
+                if (existente.isPresent()) {
+
+                    producto = existente.get();
+
+                } else {
+
+                    producto = new Producto();
+
+                    producto.setCodigo(codigo);
+
+                }
 
                 producto.setNombre(nombre);
 
-                producto.setCosto(
-                        obtenerDouble(fila.getCell(1))
-                );
+                producto.setCosto(costo);
 
-                producto.setPrecioVenta(
-                        obtenerBigDecimal(fila.getCell(2))
-                );
+                producto.setPrecioVenta(precioVenta);
 
                 producto.setTipoVenta(tipoVenta);
+
+                producto.setStock(stock);
+
+                producto.setStockMinimo(stockMinimo);
+
+                producto.setActivo(activo);
 
                 productoRepository.save(producto);
 
@@ -96,7 +139,11 @@ public class ExcelProductoService {
         workbook.close();
 
         return resultado;
+
     }
+    // =====================================================
+    // MÉTODOS AUXILIARES
+    // =====================================================
 
     private String obtenerTexto(Cell cell) {
 
@@ -104,9 +151,28 @@ public class ExcelProductoService {
             return "";
         }
 
-        cell.setCellType(CellType.STRING);
+        if (cell.getCellType() == CellType.NUMERIC) {
+
+            double valor = cell.getNumericCellValue();
+
+            if (valor == (long) valor) {
+
+                return String.valueOf((long) valor);
+
+            }
+
+            return String.valueOf(valor);
+
+        }
+
+        if (cell.getCellType() == CellType.BOOLEAN) {
+
+            return String.valueOf(cell.getBooleanCellValue());
+
+        }
 
         return cell.getStringCellValue().trim();
+
     }
 
     private Double obtenerDouble(Cell cell) {
@@ -116,29 +182,102 @@ public class ExcelProductoService {
         }
 
         if (cell.getCellType() == CellType.NUMERIC) {
+
             return cell.getNumericCellValue();
+
         }
 
-        return Double.parseDouble(
-                cell.getStringCellValue().replace(",", ".")
-        );
+        String valor = cell.getStringCellValue()
+                .replace(",", ".")
+                .trim();
+
+        if (valor.isBlank()) {
+
+            return 0.0;
+
+        }
+
+        return Double.parseDouble(valor);
+
     }
 
     private BigDecimal obtenerBigDecimal(Cell cell) {
 
         if (cell == null) {
+
             return BigDecimal.ZERO;
+
         }
 
         if (cell.getCellType() == CellType.NUMERIC) {
+
             return BigDecimal.valueOf(
                     cell.getNumericCellValue()
             );
+
         }
 
-        return new BigDecimal(
-                cell.getStringCellValue().replace(",", ".")
-        );
+        String valor = cell.getStringCellValue()
+                .replace(",", ".")
+                .trim();
+
+        if (valor.isBlank()) {
+
+            return BigDecimal.ZERO;
+
+        }
+
+        return new BigDecimal(valor);
+
     }
 
+    private Boolean obtenerBoolean(Cell cell) {
+
+        if (cell == null) {
+
+            return true;
+
+        }
+
+        if (cell.getCellType() == CellType.BOOLEAN) {
+
+            return cell.getBooleanCellValue();
+
+        }
+
+        String valor =
+                obtenerTexto(cell).trim().toUpperCase();
+
+        return valor.equals("TRUE")
+                || valor.equals("VERDADERO")
+                || valor.equals("SI")
+                || valor.equals("SÍ")
+                || valor.equals("1");
+
+    }
+
+    private Integer obtenerInteger(Cell cell) {
+
+        if (cell == null) {
+            return 0;
+        }
+
+        if (cell.getCellType() == CellType.NUMERIC) {
+
+            return (int) cell.getNumericCellValue();
+
+        }
+
+        String valor = cell.getStringCellValue()
+                .trim();
+
+        if (valor.isBlank()) {
+
+            return 0;
+
+        }
+
+        return Integer.parseInt(valor);
+
+    }
 }
