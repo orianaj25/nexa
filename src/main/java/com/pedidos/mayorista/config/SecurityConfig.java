@@ -70,11 +70,6 @@ public class SecurityConfig {
                                 "/api/usuarios/me"
                         ).authenticated()
 
-                        // CREACIÓN INICIAL DE USUARIOS
-                        .requestMatchers(
-                                "/api/usuarios"
-                        ).permitAll()
-
                         // Solo el administrador administra usuarios
                         .requestMatchers(
                                 "/api/usuarios/**"
