@@ -4,6 +4,7 @@ import com.pedidos.mayorista.model.Caja;
 import com.pedidos.mayorista.model.MovimientoCaja;
 import com.pedidos.mayorista.repository.CajaRepository;
 import com.pedidos.mayorista.repository.MovimientoCajaRepository;
+import com.pedidos.mayorista.security.ComercioContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -17,13 +18,27 @@ public class MovimientoCajaService {
 
     private final MovimientoCajaRepository movimientoRepository;
     private final CajaRepository cajaRepository;
+    private final ComercioContext comercio;
 
     public MovimientoCajaService(
             MovimientoCajaRepository movimientoRepository,
-            CajaRepository cajaRepository) {
+            CajaRepository cajaRepository,
+            ComercioContext comercio) {
 
         this.movimientoRepository = movimientoRepository;
         this.cajaRepository = cajaRepository;
+        this.comercio = comercio;
+    }
+
+    /*
+     * Caja abierta del comercio actual
+     */
+    private Caja cajaAbiertaActual() {
+
+        return cajaRepository
+                .findByEstadoAndComercioId("ABIERTA", comercio.id())
+                .orElseThrow(() ->
+                        new RuntimeException("No existe una caja abierta"));
     }
 
     /*
@@ -37,9 +52,7 @@ public class MovimientoCajaService {
             String motivo,
             String usuario) {
 
-        Caja caja = cajaRepository.findByEstado("ABIERTA")
-                .orElseThrow(() ->
-                        new RuntimeException("No existe una caja abierta"));
+        Caja caja = cajaAbiertaActual();
 
         MovimientoCaja movimiento = new MovimientoCaja();
 
@@ -76,9 +89,7 @@ public class MovimientoCajaService {
             String motivo,
             String usuario) {
 
-        Caja caja = cajaRepository.findByEstado("ABIERTA")
-                .orElseThrow(() ->
-                        new RuntimeException("No existe una caja abierta"));
+        Caja caja = cajaAbiertaActual();
 
         MovimientoCaja movimiento = new MovimientoCaja();
 
@@ -111,9 +122,7 @@ public class MovimientoCajaService {
      */
     public List<MovimientoCaja> listarMovimientos() {
 
-        Caja caja = cajaRepository.findByEstado("ABIERTA")
-                .orElseThrow(() ->
-                        new RuntimeException("No existe una caja abierta"));
+        Caja caja = cajaAbiertaActual();
 
         return movimientoRepository.findByCajaOrderByFechaDesc(caja);
     }
@@ -136,6 +145,11 @@ public class MovimientoCajaService {
     }
 
     public List<MovimientoCaja> listarPorCaja(Long cajaId) {
+
+        // La caja tiene que ser del comercio actual
+        cajaRepository.findByIdAndComercioId(cajaId, comercio.id())
+                .orElseThrow(() ->
+                        new RuntimeException("Caja no encontrada"));
 
         return movimientoRepository.findByCajaIdOrderByFechaAsc(cajaId);
 

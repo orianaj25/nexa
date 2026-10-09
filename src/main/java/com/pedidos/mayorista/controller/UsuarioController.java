@@ -1,5 +1,6 @@
 package com.pedidos.mayorista.controller;
 
+import com.pedidos.mayorista.dto.MeDTO;
 import com.pedidos.mayorista.model.Usuario;
 import com.pedidos.mayorista.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,16 +116,13 @@ public class UsuarioController {
 // ==========================
 
     @GetMapping("/me")
-    public ResponseEntity<Usuario> usuarioLogueado(
+    public ResponseEntity<MeDTO> usuarioLogueado(
             Principal principal) {
 
-        Usuario usuario = usuarioService.buscarPorUsuario(
-                principal.getName()
+        // Incluye el comercio del usuario (null para el SUPER_ADMIN)
+        return ResponseEntity.ok(
+                usuarioService.obtenerMe(principal.getName())
         );
-
-        usuario.setPassword(null);
-
-        return ResponseEntity.ok(usuario);
 
     }
 

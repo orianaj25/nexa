@@ -2,18 +2,26 @@ package com.pedidos.mayorista.service;
 
 import com.pedidos.mayorista.model.Producto;
 import com.pedidos.mayorista.repository.ProductoRepository;
+import com.pedidos.mayorista.security.ComercioContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Cada comercio tiene su propio catálogo: sus productos, sus precios y su stock.
+ */
 @Service
 public class ProductoService {
 
     private final ProductoRepository repo;
 
-    public ProductoService(ProductoRepository repo) {
+    private final ComercioContext comercio;
+
+    public ProductoService(ProductoRepository repo,
+                           ComercioContext comercio) {
         this.repo = repo;
+        this.comercio = comercio;
     }
 
     // ==========================================
@@ -21,7 +29,7 @@ public class ProductoService {
     // ==========================================
 
     public List<Producto> listar() {
-        return repo.findAll();
+        return repo.findAllByComercioId(comercio.id());
     }
 
     // ==========================================
@@ -29,6 +37,11 @@ public class ProductoService {
     // ==========================================
 
     public Producto guardar(Producto producto) {
+
+        // Siempre se crea nuevo y siempre en el comercio de quien lo crea
+        producto.setId(null);
+
+        producto.setComercioId(comercio.id());
 
         if (producto.getActivo() == null) {
             producto.setActivo(true);
@@ -50,7 +63,7 @@ public class ProductoService {
     // ==========================================
 
     public Optional<Producto> buscarPorId(Long id) {
-        return repo.findById(id);
+        return repo.findByIdAndComercioId(id, comercio.id());
     }
 
     // ==========================================
@@ -59,7 +72,7 @@ public class ProductoService {
 
     public Producto actualizar(Long id, Producto nuevo) {
 
-        return repo.findById(id)
+        return repo.findByIdAndComercioId(id, comercio.id())
                 .map(producto -> {
 
                     producto.setCodigo(nuevo.getCodigo());
@@ -84,7 +97,10 @@ public class ProductoService {
     // ==========================================
 
     public void eliminar(Long id) {
-        repo.deleteById(id);
+
+        // Si el producto no es de este comercio, simplemente no se encuentra
+        repo.findByIdAndComercioId(id, comercio.id())
+                .ifPresent(repo::delete);
     }
 
 }

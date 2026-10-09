@@ -8,27 +8,36 @@ import com.pedidos.mayorista.model.Pedido;
 import com.pedidos.mayorista.model.enums.EstadoPedido;
 import com.pedidos.mayorista.repository.DetallePedidoRepository;
 import com.pedidos.mayorista.repository.PedidoRepository;
+import com.pedidos.mayorista.security.ComercioContext;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.TextStyle;
 import java.util.*;
 
 @Service
 public class DashboardService {
 
+    // El servidor (Render) corre en UTC: el "hoy" del comercio se calcula siempre en hora argentina
+    private static final ZoneId ZONA = ZoneId.of("America/Argentina/Buenos_Aires");
+
     private final PedidoRepository pedidoRepository;
 
     private final DetallePedidoRepository detalleRepository;
 
+    private final ComercioContext comercio;
+
     public DashboardService(
             PedidoRepository pedidoRepository,
-            DetallePedidoRepository detalleRepository) {
+            DetallePedidoRepository detalleRepository,
+            ComercioContext comercio) {
 
         this.pedidoRepository = pedidoRepository;
         this.detalleRepository = detalleRepository;
+        this.comercio = comercio;
 
     }
 
@@ -38,7 +47,9 @@ public class DashboardService {
 
     public DashboardDTO obtenerDashboard() {
 
-        LocalDate hoy = LocalDate.now();
+        Long comercioId = comercio.id();
+
+        LocalDate hoy = LocalDate.now(ZONA);
 
         LocalDateTime inicio = hoy.atStartOfDay();
 
@@ -46,13 +57,13 @@ public class DashboardService {
 
         return new DashboardDTO(
 
-                pedidoRepository.ventasDelDia(inicio, fin),
+                pedidoRepository.ventasDelDia(comercioId, inicio, fin),
 
-                pedidoRepository.pedidosDelDia(inicio, fin),
+                pedidoRepository.pedidosDelDia(comercioId, inicio, fin),
 
-                pedidoRepository.clientesDelDia(inicio, fin),
+                pedidoRepository.clientesDelDia(comercioId, inicio, fin),
 
-                detalleRepository.productosVendidos(inicio, fin)
+                detalleRepository.productosVendidos(comercioId, inicio, fin)
 
         );
 
@@ -65,7 +76,7 @@ public class DashboardService {
     public List<UltimoPedidoDTO> obtenerUltimosPedidos() {
 
         List<Pedido> pedidos =
-                pedidoRepository.findTop10ByOrderByFechaDesc();
+                pedidoRepository.findTop10ByComercioIdOrderByFechaDesc(comercio.id());
 
         List<UltimoPedidoDTO> respuesta =
                 new ArrayList<>();
@@ -101,22 +112,28 @@ public class DashboardService {
 
     public DashboardVendedorDTO obtenerDashboardVendedor() {
 
+        Long comercioId = comercio.id();
+
         return new DashboardVendedorDTO(
 
-                pedidoRepository.countByEstado(
-                        EstadoPedido.PENDIENTE_FACTURACION
+                pedidoRepository.countByEstadoAndComercioId(
+                        EstadoPedido.PENDIENTE_FACTURACION,
+                        comercioId
                 ),
 
-                pedidoRepository.countByEstado(
-                        EstadoPedido.ENVIADO_A_FACTURACION
+                pedidoRepository.countByEstadoAndComercioId(
+                        EstadoPedido.ENVIADO_A_FACTURACION,
+                        comercioId
                 ),
 
-                pedidoRepository.countByEstado(
-                        EstadoPedido.FACTURADO
+                pedidoRepository.countByEstadoAndComercioId(
+                        EstadoPedido.FACTURADO,
+                        comercioId
                 ),
 
-                pedidoRepository.countByEstado(
-                        EstadoPedido.ANULADO
+                pedidoRepository.countByEstadoAndComercioId(
+                        EstadoPedido.ANULADO,
+                        comercioId
                 )
 
         );
@@ -129,7 +146,7 @@ public class DashboardService {
     public List<ProductoMasVendidoDTO> productosMasVendidos() {
 
         List<Object[]> consulta =
-                detalleRepository.productosMasVendidos();
+                detalleRepository.productosMasVendidos(comercio.id());
 
         List<ProductoMasVendidoDTO> respuesta =
                 new ArrayList<>();
@@ -160,12 +177,15 @@ public class DashboardService {
 
     public Map<String, Object> ventasUltimos7Dias() {
 
-        LocalDateTime fin = LocalDateTime.now();
+        LocalDate hoy = LocalDate.now(ZONA);
 
-        LocalDateTime inicio = fin.minusDays(6);
+        // Desde las 00:00 del día más antiguo, para no perder ventas de ese día
+        LocalDateTime inicio = hoy.minusDays(6).atStartOfDay();
+
+        LocalDateTime fin = hoy.atTime(23,59,59);
 
         List<Object[]> resultados =
-                pedidoRepository.ventasPorDia(inicio, fin);
+                pedidoRepository.ventasPorDia(comercio.id(), inicio, fin);
 
         Map<LocalDate, BigDecimal> mapa =
                 new HashMap<>();
@@ -191,7 +211,7 @@ public class DashboardService {
         for (int i = 6; i >= 0; i--) {
 
             LocalDate dia =
-                    LocalDate.now().minusDays(i);
+                    hoy.minusDays(i);
 
             labels.add(
 

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "caja")
+@Table(name = "caja", indexes = @Index(name = "idx_caja_comercio_estado", columnList = "comercio_id, estado"))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,6 +20,10 @@ public class Caja {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @JsonIgnore
+    @Column(name = "comercio_id")
+    private Long comercioId;
 
     private String usuario;
 

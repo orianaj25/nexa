@@ -43,6 +43,12 @@ public class Usuario {
     @Column(nullable = false)
     private Boolean activo = true;
 
+    // Comercio al que pertenece. null = SUPER_ADMIN.
+    // Solo lectura desde la API: siempre lo asigna el servidor.
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Column(name = "comercio_id")
+    private Long comercioId;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "America/Argentina/Buenos_Aires")
     @Column(nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;

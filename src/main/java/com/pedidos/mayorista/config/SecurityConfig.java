@@ -1,13 +1,16 @@
 package com.pedidos.mayorista.config;
 
+import com.pedidos.mayorista.security.ComercioActivoFilter;
 import com.pedidos.mayorista.service.UsuarioDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 
 @Configuration
 public class SecurityConfig {
@@ -28,13 +31,29 @@ public class SecurityConfig {
     }
 
 
+    // El filtro de comercio suspendido corre solo dentro de la cadena de Spring Security,
+    // no como filtro suelto del servlet (evita que se ejecute dos veces)
+    @Bean
+    public FilterRegistrationBean<ComercioActivoFilter> comercioActivoFilterRegistration(
+            ComercioActivoFilter filter) {
+
+        FilterRegistrationBean<ComercioActivoFilter> registration =
+                new FilterRegistrationBean<>(filter);
+
+        registration.setEnabled(false);
+
+        return registration;
+    }
+
+
     // ==========================
     // SECURITY
     // ==========================
 
     @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http) throws Exception {
+            HttpSecurity http,
+            ComercioActivoFilter comercioActivoFilter) throws Exception {
 
         http
 
@@ -53,6 +72,13 @@ public class SecurityConfig {
 
 
                 // ==========================
+                // COMERCIO SUSPENDIDO
+                // ==========================
+
+                .addFilterBefore(comercioActivoFilter, AuthorizationFilter.class)
+
+
+                // ==========================
                 // AUTORIZACIONES
                 // ==========================
 
@@ -60,6 +86,7 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 "/login",
+                                "/error",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**"
@@ -70,12 +97,20 @@ public class SecurityConfig {
                                 "/api/usuarios/me"
                         ).authenticated()
 
-                        // Solo el administrador administra usuarios
+                        // Panel del dueño de la plataforma: alta y administración de comercios
                         .requestMatchers(
-                                "/api/usuarios/**"
+                                "/api/superadmin/**",
+                                "/superadmin.html"
+                        ).hasRole("SUPER_ADMIN")
+
+                        // El administrador de cada comercio administra SUS usuarios
+                        .requestMatchers(
+                                "/api/usuarios/**",
+                                "/usuarios.html"
                         ).hasRole("ADMINISTRADOR")
 
-                        .anyRequest().authenticated()
+                        // Todo el resto es la operación del comercio
+                        .anyRequest().hasAnyRole("ADMINISTRADOR", "VENDEDOR")
                 )
 
 
@@ -85,10 +120,20 @@ public class SecurityConfig {
 
                 .formLogin(form -> form
 
-                        .defaultSuccessUrl(
-                                "/dashboard.html",
-                                true
-                        )
+                        // Cada rol aterriza en su pantalla
+                        .successHandler((request, response, authentication) -> {
+
+                            boolean superAdmin = authentication.getAuthorities()
+                                    .stream()
+                                    .anyMatch(a ->
+                                            a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+
+                            response.sendRedirect(
+                                    superAdmin
+                                            ? "/superadmin.html"
+                                            : "/dashboard.html"
+                            );
+                        })
 
                         .permitAll()
                 )

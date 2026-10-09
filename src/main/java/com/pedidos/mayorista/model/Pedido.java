@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Table(name = "pedido", indexes = @Index(name = "idx_pedido_comercio_fecha", columnList = "comercio_id, fecha"))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,6 +22,10 @@ public class Pedido {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @JsonIgnore
+    @Column(name = "comercio_id")
+    private Long comercioId;
 
     @Column(name = "numero_pedido", unique = true)
     private String numeroPedido;
