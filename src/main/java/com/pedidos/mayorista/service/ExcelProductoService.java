@@ -3,6 +3,7 @@ package com.pedidos.mayorista.service;
 import com.pedidos.mayorista.dto.ImportacionProductosDTO;
 import com.pedidos.mayorista.model.Producto;
 import com.pedidos.mayorista.repository.ProductoRepository;
+import com.pedidos.mayorista.security.ComercioContext;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,13 +17,20 @@ public class ExcelProductoService {
 
     private final ProductoRepository productoRepository;
 
-    public ExcelProductoService(ProductoRepository productoRepository) {
+    private final ComercioContext comercio;
+
+    public ExcelProductoService(ProductoRepository productoRepository,
+                                ComercioContext comercio) {
 
         this.productoRepository = productoRepository;
+        this.comercio = comercio;
 
     }
 
     public ImportacionProductosDTO importar(MultipartFile archivo) throws IOException {
+
+        // La importación siempre es sobre el catálogo del comercio actual
+        Long comercioId = comercio.id();
 
         ImportacionProductosDTO resultado = new ImportacionProductosDTO();
 
@@ -88,7 +96,7 @@ public class ExcelProductoService {
                 Producto producto;
 
                 Optional<Producto> existente =
-                        productoRepository.findByCodigo(codigo);
+                        productoRepository.findByCodigoAndComercioId(codigo, comercioId);
 
                 if (existente.isPresent()) {
 
@@ -97,6 +105,8 @@ public class ExcelProductoService {
                 } else {
 
                     producto = new Producto();
+
+                    producto.setComercioId(comercioId);
 
                     producto.setCodigo(codigo);
 

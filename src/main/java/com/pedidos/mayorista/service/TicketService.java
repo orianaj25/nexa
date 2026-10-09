@@ -3,7 +3,9 @@ import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfWriter;
 import com.pedidos.mayorista.model.DetallePedido;
 import com.pedidos.mayorista.model.Pedido;
+import com.pedidos.mayorista.repository.ComercioRepository;
 import com.pedidos.mayorista.repository.PedidoRepository;
+import com.pedidos.mayorista.security.ComercioContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.lowagie.text.Document;
@@ -20,13 +22,26 @@ public class TicketService {
     @Autowired
     private PedidoRepository pedidoRepository;
 
+    @Autowired
+    private ComercioRepository comercioRepository;
+
+    @Autowired
+    private ComercioContext comercio;
+
     public byte[] generarTicket(Long pedidoId) {
 
         try {
 
-            Pedido pedido = pedidoRepository.findById(pedidoId)
+            // Solo se pueden imprimir tickets de pedidos del propio comercio
+            Long comercioId = comercio.id();
+
+            Pedido pedido = pedidoRepository.findByIdAndComercioId(pedidoId, comercioId)
                     .orElseThrow(() ->
                             new RuntimeException("Pedido no encontrado"));
+
+            String nombreComercio = comercioRepository.findById(comercioId)
+                    .map(c -> c.getNombre())
+                    .orElse("NEXA");
 
             ByteArrayOutputStream out =
                     new ByteArrayOutputStream();
@@ -57,7 +72,7 @@ public class TicketService {
             ========================= */
 
             Paragraph empresa =
-                    new Paragraph("VOLGA", titulo);
+                    new Paragraph(nombreComercio.toUpperCase(), titulo);
 
             empresa.setAlignment(Element.ALIGN_CENTER);
 

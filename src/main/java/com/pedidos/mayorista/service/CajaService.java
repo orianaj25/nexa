@@ -4,6 +4,7 @@ import com.pedidos.mayorista.dto.CajaHistorialDTO;
 import com.pedidos.mayorista.model.Caja;
 import com.pedidos.mayorista.model.Pedido;
 import com.pedidos.mayorista.repository.CajaRepository;
+import com.pedidos.mayorista.security.ComercioContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,25 +19,36 @@ public class CajaService {
 
     private final CajaRepository cajaRepository;
 
-    public CajaService(CajaRepository cajaRepository) {
+    private final ComercioContext comercio;
+
+    public CajaService(CajaRepository cajaRepository,
+                       ComercioContext comercio) {
         this.cajaRepository = cajaRepository;
+        this.comercio = comercio;
     }
 
     /*
-     * Obtiene la caja abierta.
+     * Obtiene la caja abierta DEL COMERCIO ACTUAL.
+     * Cada comercio maneja su propia caja de forma independiente.
      */
     public Optional<Caja> obtenerCajaAbierta() {
 
-        return cajaRepository.findByEstado("ABIERTA");
+        return cajaAbierta(comercio.id());
+
+    }
+
+    private Optional<Caja> cajaAbierta(Long comercioId) {
+
+        return cajaRepository.findByEstadoAndComercioId("ABIERTA", comercioId);
 
     }
 
     /*
-     * Lista todas las cajas.
+     * Lista todas las cajas del comercio.
      */
     public List<CajaHistorialDTO> listar() {
 
-        return cajaRepository.listarHistorial();
+        return cajaRepository.listarHistorial(comercio.id());
 
     }
 
@@ -47,7 +59,7 @@ public class CajaService {
     @Transactional
     public void registrarVenta(Pedido pedido) {
 
-        Optional<Caja> cajaOpt = obtenerCajaAbierta();
+        Optional<Caja> cajaOpt = cajaAbierta(pedido.getComercioId());
 
         if (cajaOpt.isEmpty()) {
             return;
@@ -106,6 +118,8 @@ public class CajaService {
         }
 
         Caja caja = new Caja();
+
+        caja.setComercioId(comercio.id());
 
         caja.setFechaApertura(
                 LocalDateTime.now(

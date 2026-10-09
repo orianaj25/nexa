@@ -7,6 +7,7 @@ import com.pedidos.mayorista.model.Producto;
 import com.pedidos.mayorista.model.enums.EstadoPedido;
 import com.pedidos.mayorista.repository.PedidoRepository;
 import com.pedidos.mayorista.repository.ProductoRepository;
+import com.pedidos.mayorista.security.ComercioContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,9 +30,17 @@ public class PedidoService {
     @Autowired
     private CajaService cajaService;
 
+    @Autowired
+    private ComercioContext comercio;
+
+    @Transactional
     public Pedido crearPedido(PedidoRequest request) {
 
+        Long comercioId = comercio.id();
+
         Pedido pedido = new Pedido();
+
+        pedido.setComercioId(comercioId);
 
         pedido.setFecha(
                 LocalDateTime.now(
@@ -49,7 +58,8 @@ public class PedidoService {
 
         for (PedidoRequest.ItemPedido item : request.items) {
 
-            Producto p = productoRepo.findById(item.productoId)
+            // Solo se pueden vender productos del propio comercio
+            Producto p = productoRepo.findByIdAndComercioId(item.productoId, comercioId)
                     .orElseThrow(() ->
                             new RuntimeException("Producto no existe"));
 
@@ -89,13 +99,13 @@ public class PedidoService {
     }
 
     public List<Pedido> listar() {
-        return pedidoRepo.findAll();
+        return pedidoRepo.findAllByComercioId(comercio.id());
     }
 
     @Transactional
     public void anularPedido(Long id) {
 
-        Pedido pedido = pedidoRepo.findById(id)
+        Pedido pedido = pedidoRepo.findByIdAndComercioId(id, comercio.id())
                 .orElseThrow(() ->
                         new RuntimeException("Pedido no encontrado"));
 
@@ -107,7 +117,7 @@ public class PedidoService {
     @Transactional
     public void restaurarPedido(Long id) {
 
-        Pedido pedido = pedidoRepo.findById(id)
+        Pedido pedido = pedidoRepo.findByIdAndComercioId(id, comercio.id())
                 .orElseThrow(() ->
                         new RuntimeException("Pedido no encontrado"));
 

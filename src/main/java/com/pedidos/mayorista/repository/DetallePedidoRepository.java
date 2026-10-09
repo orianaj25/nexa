@@ -6,6 +6,7 @@ import com.pedidos.mayorista.model.DetallePedido;
 import com.pedidos.mayorista.model.enums.EstadoPedido;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -28,17 +29,20 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedido, Lo
         FROM DetallePedido d
         JOIN d.pedido p
         JOIN d.producto pr
+        WHERE p.comercioId = :comercioId
         ORDER BY p.fecha DESC
     """)
-    List<PedidoDetalleDTO> listarDetalle();
+    List<PedidoDetalleDTO> listarDetalle(@Param("comercioId") Long comercioId);
 
     @Query("""
         SELECT COALESCE(SUM(d.cantidad),0)
         FROM DetallePedido d
-        WHERE d.pedido.fecha BETWEEN :inicio AND :fin
+        WHERE d.pedido.comercioId = :comercioId
+          AND d.pedido.fecha BETWEEN :inicio AND :fin
     """)
-    Integer productosVendidos(LocalDateTime inicio,
-                              LocalDateTime fin);
+    Integer productosVendidos(@Param("comercioId") Long comercioId,
+                              @Param("inicio") LocalDateTime inicio,
+                              @Param("fin") LocalDateTime fin);
 
     @Query("""
         SELECT new com.pedidos.mayorista.dto.PedidoHistorialDTO(
@@ -52,7 +56,8 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedido, Lo
         )
         FROM DetallePedido d
         JOIN d.pedido p
-        WHERE p.estado <> :estado
+        WHERE p.comercioId = :comercioId
+          AND p.estado <> :estado
         GROUP BY
             p.id,
             p.numeroPedido,
@@ -62,7 +67,8 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedido, Lo
             p.estado
         ORDER BY p.fecha DESC
     """)
-    List<PedidoHistorialDTO> listarHistorial(EstadoPedido estado);
+    List<PedidoHistorialDTO> listarHistorial(@Param("comercioId") Long comercioId,
+                                             @Param("estado") EstadoPedido estado);
 
     @Query("""
         SELECT new com.pedidos.mayorista.dto.PedidoHistorialDTO(
@@ -76,7 +82,8 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedido, Lo
         )
         FROM DetallePedido d
         JOIN d.pedido p
-        WHERE p.estado = :estado
+        WHERE p.comercioId = :comercioId
+          AND p.estado = :estado
         GROUP BY
             p.id,
             p.numeroPedido,
@@ -86,7 +93,8 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedido, Lo
             p.estado
         ORDER BY p.fecha DESC
     """)
-    List<PedidoHistorialDTO> listarAnulados(EstadoPedido estado);
+    List<PedidoHistorialDTO> listarAnulados(@Param("comercioId") Long comercioId,
+                                            @Param("estado") EstadoPedido estado);
 
     @Query("""
         SELECT new com.pedidos.mayorista.dto.PedidoHistorialDTO(
@@ -100,6 +108,7 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedido, Lo
         )
         FROM DetallePedido d
         JOIN d.pedido p
+        WHERE p.comercioId = :comercioId
         GROUP BY
             p.id,
             p.numeroPedido,
@@ -109,16 +118,17 @@ public interface DetallePedidoRepository extends JpaRepository<DetallePedido, Lo
             p.estado
         ORDER BY p.fecha DESC
     """)
-    List<PedidoHistorialDTO> listarTodos();
+    List<PedidoHistorialDTO> listarTodos(@Param("comercioId") Long comercioId);
 
     @Query("""
-SELECT
-    d.producto.nombre,
-    SUM(d.cantidad)
-FROM DetallePedido d
-GROUP BY d.producto.nombre
-ORDER BY SUM(d.cantidad) DESC
-""")
-    List<Object[]> productosMasVendidos();
+        SELECT
+            d.producto.nombre,
+            SUM(d.cantidad)
+        FROM DetallePedido d
+        WHERE d.pedido.comercioId = :comercioId
+        GROUP BY d.producto.nombre
+        ORDER BY SUM(d.cantidad) DESC
+    """)
+    List<Object[]> productosMasVendidos(@Param("comercioId") Long comercioId);
 
 }
