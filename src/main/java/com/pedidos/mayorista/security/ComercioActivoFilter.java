@@ -75,7 +75,7 @@ public class ComercioActivoFilter extends OncePerRequestFilter {
 
                 } else {
 
-                    response.sendRedirect("/login?error");
+                    response.sendRedirect("/login");
 
                 }
 
